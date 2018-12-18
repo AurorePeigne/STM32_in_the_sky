@@ -6,7 +6,7 @@
   ******************************************************************************
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
+  * USER CODE END. Other portions of this file, whether
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
@@ -175,7 +175,7 @@ int main(void)
 		  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, TEMP_OUT_L, 1, HAL_TIMEOUT)!= HAL_OK);
 		  HAL_Delay(1000);
 
-		  uint16_t TEMP_OUT = (TEMP_OUT_H[1]<<8) +  TEMP_OUT_L[1];
+
 
 	  	  //CONVERSION Temperature
 
@@ -186,9 +186,7 @@ int main(void)
 	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_T1_degC_x8, 1, HAL_TIMEOUT) != HAL_OK);
 	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, T1_degC_x8, 1, HAL_TIMEOUT) != HAL_OK);
 	  	  HAL_Delay(1000);
-	  	    //division par 8
-	  	  uint16_t T0_degC = T0_degC_x8[1]<<8;
-	  	  uint16_t T1_degC = T1_degC_x8[1]<<8;
+
 	  	  	  //T0_OUT
 	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_T0_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
 	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, T0_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
@@ -204,11 +202,9 @@ int main(void)
 	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_T1_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
 	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, T1_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
 	  	  HAL_Delay(1000);
-	  	  uint16_t T1_OUT = (T1_OUT_H[1]<<8) +  T1_OUT_L[1];
 
 
-	  	  //Compute the temperature
-	  	  //int T= ( ((T1_degC - T0_degC)(TEMP_OUT - T0_OUT))/(T1_OUT - T0_OUT) +  T0_degC );
+
 
 		  //HUMIDITY
 	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_HUMIDITY_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
@@ -218,7 +214,6 @@ int main(void)
 	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, HUMIDITY_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
 	  	  HAL_Delay(1000);
 
-	  	  uint16_t HUM_OUT = (HUMIDITY_OUT_H[1]<<8) +  HUMIDITY_OUT_L[1];
 
 	  	  //CONVERSION Humidity
 
@@ -229,9 +224,8 @@ int main(void)
 	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_H1_rH_x2, 1, HAL_TIMEOUT) != HAL_OK);
 	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, H1_rH_x2, 1, HAL_TIMEOUT) != HAL_OK);
 	  	  HAL_Delay(1000);
-	  	    //division par 2
-	  	  uint16_t H0_rH = H0_rH_x2[1]<<2;
-	  	  uint16_t H1_rH = H1_rH_x2[1]<<2;
+
+
 	  	  	  //H0_T0_OUT
 	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_H0_T0_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
 	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, H0_T0_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
@@ -247,10 +241,7 @@ int main(void)
 	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_H1_T0_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
 	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, H1_T0_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
 	   	  HAL_Delay(1000);
-	  	  uint16_t H1_T0_OUT = (H1_T0_OUT_H[1]<<8) +  H1_T0_OUT_L[1];
 
-	  	  //Compute the humidity
-	  	 // int H= ( ((H1_rH - H0_rH)( HUM_OUT - H0_T0_OUT))/(H1_T0_OUT - H0_T0_OUT) + H0_rH  );
 
 
   /* USER CODE END WHILE */
@@ -273,11 +264,11 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
   RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
-    /**Configure the main internal regulator output voltage 
+    /**Configure the main internal regulator output voltage
     */
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
-    /**Initializes the CPU, AHB and APB busses clocks 
+    /**Initializes the CPU, AHB and APB busses clocks
     */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
@@ -290,7 +281,7 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Initializes the CPU, AHB and APB busses clocks 
+    /**Initializes the CPU, AHB and APB busses clocks
     */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -312,11 +303,11 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure the Systick interrupt time 
+    /**Configure the Systick interrupt time
     */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
 
-    /**Configure the Systick 
+    /**Configure the Systick
     */
   HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
 
@@ -342,14 +333,14 @@ static void MX_I2C1_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure Analogue filter 
+    /**Configure Analogue filter
     */
   if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Configure Digital filter 
+    /**Configure Digital filter
     */
   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
   {
@@ -379,9 +370,9 @@ static void MX_USART2_UART_Init(void)
 
 }
 
-/** Configure pins as 
-        * Analog 
-        * Input 
+/** Configure pins as
+        * Analog
+        * Input
         * Output
         * EVENT_OUT
         * EXTI
@@ -444,7 +435,7 @@ void _Error_Handler(char *file, int line)
   * @retval None
   */
 void assert_failed(uint8_t* file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
