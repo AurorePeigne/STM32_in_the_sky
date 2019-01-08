@@ -1,454 +1,479 @@
-
-/**
+/******************************************************************************
+  * @file    main.c
+  * @author  MCD Application Team
+  * @version V1.2.0
+  * @date    10-July-2018
+  * @brief   this is the main!
   ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  ** This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
+  * @attention
   *
-  * COPYRIGHT(c) 2018 STMicroelectronics
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics International N.V.
+  * All rights reserved.</center></h2>
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted, provided that the following conditions are met:
   *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * 1. Redistribution of source code must retain the above copyright notice,
+  *    this list of conditions and the following disclaimer.
+  * 2. Redistributions in binary form must reproduce the above copyright notice,
+  *    this list of conditions and the following disclaimer in the documentation
+  *    and/or other materials provided with the distribution.
+  * 3. Neither the name of STMicroelectronics nor the names of other
+  *    contributors to this software may be used to endorse or promote products
+  *    derived from this software without specific written permission.
+  * 4. This software, including modifications and/or derivative works of this
+  *    software, must execute solely and exclusively on microcontroller or
+  *    microprocessor devices manufactured by or for STMicroelectronics.
+  * 5. Redistribution and use of this software other than as permitted under
+  *    this license is void and will automatically terminate your rights under
+  *    this license.
+  *
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
+  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
   */
+
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
-#include "stm32l0xx_hal.h"
+#include "hw.h"
+#include "low_power_manager.h"
+#include "lora.h"
+#include "bsp.h"
+#include "timeServer.h"
+#include "vcom.h"
+#include "version.h"
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
 
-/* USER CODE BEGIN Includes */
+/*!
+ * CAYENNE_LPP is myDevices Application server.
+ */
+//#define CAYENNE_LPP
+#define LPP_DATATYPE_DIGITAL_INPUT  0x0
+#define LPP_DATATYPE_DIGITAL_OUTPUT 0x1
+#define LPP_DATATYPE_HUMIDITY       0x68
+#define LPP_DATATYPE_TEMPERATURE    0x67
+#define LPP_DATATYPE_BAROMETER      0x73
+#define LPP_APP_PORT 99
+/*!
+ * Defines the application data transmission duty cycle. 5s, value in [ms].
+ */
+#define APP_TX_DUTYCYCLE                            60000
+/*!
+ * LoRaWAN Adaptive Data Rate
+ * @note Please note that when ADR is enabled the end-device should be static
+ */
+#define LORAWAN_ADR_STATE LORAWAN_ADR_ON
+/*!
+ * LoRaWAN Default data Rate Data Rate
+ * @note Please note that LORAWAN_DEFAULT_DATA_RATE is used only when ADR is disabled 
+ */
+#define LORAWAN_DEFAULT_DATA_RATE DR_0
+/*!
+ * LoRaWAN application port
+ * @note do not use 224. It is reserved for certification
+ */
+#define LORAWAN_APP_PORT                            2
+/*!
+ * LoRaWAN default endNode class port
+ */
+#define LORAWAN_DEFAULT_CLASS                       CLASS_A
+/*!
+ * LoRaWAN default confirm state
+ */
+#define LORAWAN_DEFAULT_CONFIRM_MSG_STATE           LORAWAN_UNCONFIRMED_MSG
+/*!
+ * User application data buffer size
+ */
+#define LORAWAN_APP_DATA_BUFF_SIZE                           12
+/*!
+ * User application data
+ */
+static uint8_t AppDataBuff[LORAWAN_APP_DATA_BUFF_SIZE];
 
-/* USER CODE END Includes */
 
-/* Private variables ---------------------------------------------------------*/
-uint16_t conv_temp[1]={0x00};
-uint16_t conv_hum;
+/*!
+ * User application data structure
+ */
+uint8_t MyData=0xF0;				                              //code perso
 
-//variable WhoIAm
-uint8_t sub_addr_who_am_i[1]={0x0F};
-uint8_t who_am_i[1]={0x00};
+//static lora_AppData_t AppData={ AppDataBuff,  0 ,0 };
+lora_AppData_t AppData={ AppDataBuff,  0 ,0 };
 
-//Variable Temperature
-uint8_t sub_addr_TEMP_OUT_L[1]={0x2A};
-uint8_t TEMP_OUT_L[1]={0x00};
-uint8_t sub_addr_TEMP_OUT_H[1]={0x2B};
-uint8_t TEMP_OUT_H[1]={0x00};
-
-//variable conversion temperature
-uint8_t sub_addr_T0_degC_x8[1]={0x32};
-uint8_t sub_addr_T1_degC_x8[1]={0x33};
-uint8_t T0_degC_x8[1]={0x00};
-uint8_t T1_degC_x8[1]={0x00};
-
-uint8_t T1T0msb[1]={0x35};
-uint8_t sub_addr_T0_OUT_L[1]={0x00};
-uint8_t sub_addr_T0_OUT_H[1]={0x00};
-uint8_t T0_OUT_L[1]={0x3C};
-uint8_t T0_OUT_H[1]={0x3D};
-
-uint8_t sub_addr_T1_OUT_L[1]={0x00};
-uint8_t sub_addr_T1_OUT_H[1]={0x00};
-uint8_t T1_OUT_L[1]={0x3E};
-uint8_t T1_OUT_H[1]={0x3F};
-
-
-//variables Humidity
-uint8_t sub_addr_HUMIDITY_OUT_L[1]={0x28};
-uint8_t HUMIDITY_OUT_L[1]={0x00};
-uint8_t sub_addr_HUMIDITY_OUT_H[1]={0x29};
-uint8_t HUMIDITY_OUT_H[1]={0x00};
-
-// variable conversion humidité
-uint8_t sub_addr_H0_rH_x2[1]={0x30};
-uint8_t sub_addr_H1_rH_x2[1]={0x31};
-uint8_t H0_rH_x2[1]={0x00};
-uint8_t H1_rH_x2[1]={0x00};
-
-uint8_t sub_addr_H0_T0_OUT_L[1]={0x00};
-uint8_t sub_addr_H0_T0_OUT_H[1]={0x00};
-uint8_t H0_T0_OUT_L[1]={0x36};
-uint8_t H0_T0_OUT_H[1]={0x37};
-
-uint8_t sub_addr_H1_T0_OUT_L[1]={0x00};
-uint8_t sub_addr_H1_T0_OUT_H[1]={0x00};
-uint8_t H1_T0_OUT_L[1]={0x3A};
-uint8_t H1_T0_OUT_H[1]={0x3B};
-
-I2C_HandleTypeDef hi2c1;
-
-UART_HandleTypeDef huart2;
-
-/* USER CODE BEGIN PV */
-/* Private variables ---------------------------------------------------------*/
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_USART2_UART_Init(void);
-static void MX_I2C1_Init(void);
-
-/* USER CODE BEGIN PFP */
+/* Private macro -------------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 
-/* USER CODE END PFP */
+/* call back when LoRa endNode has received a frame*/
+static void LORA_RxData( lora_AppData_t *AppData);
 
-/* USER CODE BEGIN 0 */
+/* call back when LoRa endNode has just joined*/
+static void LORA_HasJoined( void );
 
-/* USER CODE END 0 */
+/* call back when LoRa endNode has just switch the class*/
+static void LORA_ConfirmClass ( DeviceClass_t Class );
+
+/* call back when server needs endNode to send a frame*/
+static void LORA_TxNeeded ( void );
+
+/* LoRa endNode send request*/
+static void Send( void );
+
+/* start the tx process*/
+static void LoraStartTx(TxEventType_t EventType);
+
+/* tx timer callback function*/
+static void OnTxTimerEvent( void );
+
+/* Private variables ---------------------------------------------------------*/
+/* load Main call backs structure*/
+static LoRaMainCallback_t LoRaMainCallbacks = { HW_GetBatteryLevel,
+                                                HW_GetTemperatureLevel,
+                                                HW_GetUniqueId,
+                                                HW_GetRandomSeed,
+                                                LORA_RxData,
+                                                LORA_HasJoined,
+                                                LORA_ConfirmClass,
+                                                LORA_TxNeeded};
+
+/*!
+ * Specifies the state of the application LED
+ */
+static uint8_t AppLedStateOn = RESET;
+                                               
+static TimerEvent_t TxTimer;
+
+#ifdef USE_B_L072Z_LRWAN1
+/*!
+ * Timer to handle the application Tx Led to toggle
+ */
+static TimerEvent_t TxLedTimer;
+static void OnTimerLedEvent( void );
+#endif
+/* !
+ *Initialises the Lora Parameters
+ */
+static  LoRaParam_t LoRaParamInit= {LORAWAN_ADR_STATE,
+                                    LORAWAN_DEFAULT_DATA_RATE,  
+                                    LORAWAN_PUBLIC_NETWORK};
+
+/* Private functions ---------------------------------------------------------*/
 
 /**
-  * @brief  The application entry point.
-  *
+  * @brief  Main program
+  * @param  None
   * @retval None
   */
-int main(void)
+int main( void )
 {
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration----------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  /* STM32 HAL library initialization*/
   HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
+  
+  /* Configure the system clock*/
   SystemClock_Config();
+  
+  /* Configure the debug mode*/
+  DBG_Init();
+  
+  /* Configure the hardware*/
+  HW_Init();
+  
+  /* USER CODE BEGIN 1 */
+  /* USER CODE END 1 */
+  
+  /*Disbale Stand-by mode*/
+  LPM_SetOffMode(LPM_APPLI_Id , LPM_Disable );
 
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_USART2_UART_Init();
-  MX_I2C1_Init();
-  /* USER CODE BEGIN 2 */
-
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
+  PRINTF("VERSION: %X\n\r", VERSION);
+  PRINTF("%x \n",MyData);
+  /* Configure the Lora Stack*/
+  LORA_Init( &LoRaMainCallbacks, &LoRaParamInit);
+  
+  LORA_Join();
+  PRINTF("on est apres le LoRa JOIN \n");
+  LoraStartTx( TX_ON_TIMER) ;
+  
+  while( 1 )
   {
 
-			// WHO_I_AM
-			while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_who_am_i, 1, HAL_TIMEOUT) != HAL_OK);
-			while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, who_am_i, 1, HAL_TIMEOUT) != HAL_OK);
-			HAL_Delay(1000);
+    LoRaMacProcess( );
+    DISABLE_IRQ( );
+    /* if an interrupt has occurred after DISABLE_IRQ, it is kept pending 
+     * and cortex will not enter low power anyway  */
 
-		  //Temperature
-		  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_TEMP_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
-		  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, TEMP_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
-		  HAL_Delay(1000);
-		  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_TEMP_OUT_L, 1, HAL_TIMEOUT)!= HAL_OK);
-		  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, TEMP_OUT_L, 1, HAL_TIMEOUT)!= HAL_OK);
-		  HAL_Delay(1000);
+#ifndef LOW_POWER_DISABLE
+    LPM_EnterLowPower( );
+#endif
 
+    ENABLE_IRQ();
+    
+    /* USER CODE BEGIN 2 */
+    /* USER CODE END 2 */
+  }
+}
 
+static void LORA_HasJoined( void )
+{
+#if( OVER_THE_AIR_ACTIVATION != 0 )
+  PRINTF("JOINED\n\r");
+#endif
+  LORA_RequestClass( LORAWAN_DEFAULT_CLASS );
+}
 
-	  	  //CONVERSION Temperature
-
-	  	  	  //T0_degC_x8 et T1_degC_x8
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_T0_degC_x8, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, T0_degC_x8, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_T1_degC_x8, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, T1_degC_x8, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-
-	  	  	  //T0_OUT
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_T0_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, T0_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_T0_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, T0_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-	  	  uint16_t T0_OUT = (T0_OUT_H[1]<<8) +  T0_OUT_L[1];
-	    	  //T1_OUT
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_T1_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, T1_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_T1_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, T1_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-
-
-
-
-		  //HUMIDITY
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_HUMIDITY_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, HUMIDITY_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_HUMIDITY_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, HUMIDITY_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-
-
-	  	  //CONVERSION Humidity
-
-	  	 	 //H0_rH_x2 et H1_rH_x2
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_H0_rH_x2, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, H0_rH_x2, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_H1_rH_x2, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, H1_rH_x2, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-
-
-	  	  	  //H0_T0_OUT
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_H0_T0_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, H0_T0_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_H0_T0_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, H0_T0_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-	  	  uint16_t H0_T0_OUT = (H0_T0_OUT_H[1]<<8) +  H0_T0_OUT_L[1];
-	  	  	  //H1_T0_OUT
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_H1_T0_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, H1_T0_OUT_H, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  HAL_Delay(1000);
-	  	  while(HAL_I2C_Master_Transmit(&hi2c1, 0xBE, sub_addr_H1_T0_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
-	  	  while(HAL_I2C_Master_Receive(&hi2c1, 0xBE, H1_T0_OUT_L, 1, HAL_TIMEOUT) != HAL_OK);
-	   	  HAL_Delay(1000);
-
-
-
-  /* USER CODE END WHILE */
-
+static void Send( void )
+{
   /* USER CODE BEGIN 3 */
-
+  uint16_t pressure = 0;
+  int16_t temperature = 0;
+  uint16_t humidity = 0;
+  uint8_t batteryLevel;
+  sensor_t sensor_data;
+  
+  if ( LORA_JoinStatus () != LORA_SET)
+  {
+    /*Not joined, try again later*/
+    LORA_Join();
+    return;
   }
+  
+  TVL1(PRINTF("SEND REQUEST\n\r");)
+#ifndef CAYENNE_LPP
+  int32_t latitude, longitude = 0;
+  uint16_t altitudeGps = 0;
+#endif
+  
+#ifdef USE_B_L072Z_LRWAN1
+  TimerInit( &TxLedTimer, OnTimerLedEvent );
+  
+  TimerSetValue(  &TxLedTimer, 200);
+  
+  LED_On( LED_RED1 ) ; 
+  
+  TimerStart( &TxLedTimer );  
+#endif
+
+  BSP_sensor_Read( &sensor_data );
+
+#ifdef CAYENNE_LPP
+  uint8_t cchannel=0;
+  temperature = ( int16_t )( sensor_data.temperature * 10 );     /* in °C * 10 */
+  pressure    = ( uint16_t )( sensor_data.pressure * 100 / 10 );  /* in hPa / 10 */
+  humidity    = ( uint16_t )( sensor_data.humidity * 2 );        /* in %*2     */
+  uint32_t i = 0;
+
+  batteryLevel = HW_GetBatteryLevel( );                     /* 1 (very low) to 254 (fully charged) */
+
+  AppData.Port = LPP_APP_PORT;
+
+  AppData.Buff[i++] = cchannel++;
+  AppData.Buff[i++] = LPP_DATATYPE_BAROMETER;
+  AppData.Buff[i++] = ( pressure >> 8 ) & 0xFF;
+  AppData.Buff[i++] = pressure & 0xFF;
+  AppData.Buff[i++] = cchannel++;
+  AppData.Buff[i++] = LPP_DATATYPE_TEMPERATURE; 
+  AppData.Buff[i++] = ( temperature >> 8 ) & 0xFF;
+  AppData.Buff[i++] = temperature & 0xFF;
+  AppData.Buff[i++] = cchannel++;
+  AppData.Buff[i++] = LPP_DATATYPE_HUMIDITY;
+  AppData.Buff[i++] = humidity & 0xFF;
+#if defined( REGION_US915 ) || defined( REGION_US915_HYBRID ) || defined ( REGION_AU915 )
+  /* The maximum payload size does not allow to send more data for lowest DRs */
+#else
+  AppData.Buff[i++] = cchannel++;
+  AppData.Buff[i++] = LPP_DATATYPE_DIGITAL_INPUT; 
+  AppData.Buff[i++] = batteryLevel*100/254;
+  AppData.Buff[i++] = cchannel++;
+  AppData.Buff[i++] = LPP_DATATYPE_DIGITAL_OUTPUT; 
+  AppData.Buff[i++] = AppLedStateOn;
+#endif  /* REGION_XX915 */
+#else  /* not CAYENNE_LPP */
+
+  temperature = ( int16_t )( sensor_data.temperature * 100 );     /* in °C * 100 */
+  pressure    = ( uint16_t )( sensor_data.pressure * 100 / 10 );  /* in hPa / 10 */
+  humidity    = ( uint16_t )( sensor_data.humidity * 10 );        /* in %*10     */
+  latitude = sensor_data.latitude;
+  longitude= sensor_data.longitude;
+  uint32_t i = 0;
+
+  batteryLevel = HW_GetBatteryLevel( );                     /* 1 (very low) to 254 (fully charged) */
+
+  AppData.Port = LORAWAN_APP_PORT;
+
+#if defined( REGION_US915 ) || defined( REGION_US915_HYBRID ) || defined ( REGION_AU915 )
+  AppData.Buff[i++] = AppLedStateOn;
+  AppData.Buff[i++] = ( pressure >> 8 ) & 0xFF;
+  AppData.Buff[i++] = pressure & 0xFF;
+  AppData.Buff[i++] = ( temperature >> 8 ) & 0xFF;
+  AppData.Buff[i++] = temperature & 0xFF;
+  AppData.Buff[i++] = ( humidity >> 8 ) & 0xFF;
+  AppData.Buff[i++] = humidity & 0xFF;
+  AppData.Buff[i++] = batteryLevel;
+  AppData.Buff[i++] = 0;
+  AppData.Buff[i++] = 0;
+  AppData.Buff[i++] = 0;
+#else  /* not REGION_XX915 */
+  AppData.Buff[i++] = AppLedStateOn;
+  AppData.Buff[i++]=MyData & 0xFF;
+  /*AppData.Buff[i++] = ( pressure >> 8 ) & 0xFF;
+  AppData.Buff[i++] = pressure & 0xFF;
+  AppData.Buff[i++] = ( temperature >> 8 ) & 0xFF;
+  AppData.Buff[i++] = temperature & 0xFF;
+  AppData.Buff[i++] = ( humidity >> 8 ) & 0xFF;
+  AppData.Buff[i++] = humidity & 0xFF;
+  AppData.Buff[i++] = batteryLevel;
+  AppData.Buff[i++] = ( latitude >> 16 ) & 0xFF;
+  AppData.Buff[i++] = ( latitude >> 8 ) & 0xFF;
+  AppData.Buff[i++] = latitude & 0xFF;
+  AppData.Buff[i++] = ( longitude >> 16 ) & 0xFF;
+  AppData.Buff[i++] = ( longitude >> 8 ) & 0xFF;
+  AppData.Buff[i++] = longitude & 0xFF;
+  AppData.Buff[i++] = ( altitudeGps >> 8 ) & 0xFF;
+  AppData.Buff[i++] = altitudeGps & 0xFF;*/
+#endif  /* REGION_XX915 */
+#endif  /* CAYENNE_LPP */
+  AppData.BuffSize = i;
+  PRINTF("%d",MyData);
+  LORA_send( &AppData, LORAWAN_DEFAULT_CONFIRM_MSG_STATE);
+  
   /* USER CODE END 3 */
-
 }
 
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
-void SystemClock_Config(void)
+
+static void LORA_RxData( lora_AppData_t *AppData )
 {
+  /* USER CODE BEGIN 4 */
+  PRINTF("PACKET RECEIVED ON PORT %d\n\r", AppData->Port);
 
-  RCC_OscInitTypeDef RCC_OscInitStruct;
-  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-  RCC_PeriphCLKInitTypeDef PeriphClkInit;
-
-    /**Configure the main internal regulator output voltage
-    */
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-
-    /**Initializes the CPU, AHB and APB busses clocks
-    */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLLMUL_8;
-  RCC_OscInitStruct.PLL.PLLDIV = RCC_PLLDIV_2;
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  switch (AppData->Port)
   {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Initializes the CPU, AHB and APB busses clocks
-    */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+    case 3:
+    /*this port switches the class*/
+    if( AppData->BuffSize == 1 )
+    {
+      switch (  AppData->Buff[0] )
+      {
+        case 0:
+        {
+          LORA_RequestClass(CLASS_A);
+          break;
+        }
+        case 1:
+        {
+          LORA_RequestClass(CLASS_B);
+          break;
+        }
+        case 2:
+        {
+          LORA_RequestClass(CLASS_C);
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    break;
+    case LORAWAN_APP_PORT:
+    if( AppData->BuffSize == 1 )
+    {
+      AppLedStateOn = AppData->Buff[0] & 0x01;
+      if ( AppLedStateOn == RESET )
+      {
+        PRINTF("LED OFF\n\r");
+        LED_Off( LED_BLUE ) ; 
+      }
+      else
+      {
+        PRINTF("LED ON\n\r");
+        LED_On( LED_BLUE ) ; 
+      }
+    }
+    break;
+  case LPP_APP_PORT:
   {
-    _Error_Handler(__FILE__, __LINE__);
+    AppLedStateOn= (AppData->Buff[2] == 100) ?  0x01 : 0x00;
+    if ( AppLedStateOn == RESET )
+    {
+      PRINTF("LED OFF\n\r");
+      LED_Off( LED_BLUE ) ; 
+      
+    }
+    else
+    {
+      PRINTF("LED ON\n\r");
+      LED_On( LED_BLUE ) ; 
+    }
+    break;
   }
-
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_I2C1;
-  PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
-  PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
+  default:
+    break;
   }
-
-    /**Configure the Systick interrupt time
-    */
-  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
-
-    /**Configure the Systick
-    */
-  HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
-
-  /* SysTick_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+  /* USER CODE END 4 */
 }
 
-/* I2C1 init function */
-static void MX_I2C1_Init(void)
+static void OnTxTimerEvent( void )
 {
-
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x00707CBB;
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.OwnAddress2 = 0;
-  hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configure Analogue filter
-    */
-  if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-    /**Configure Digital filter
-    */
-  if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
+  /*Wait for next tx slot*/
+  TimerStart( &TxTimer);
+  /*Send*/
+  Send( );
 }
 
-/* USART2 init function */
-static void MX_USART2_UART_Init(void)
+static void LoraStartTx(TxEventType_t EventType)
 {
-
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
+  if (EventType == TX_ON_TIMER)
   {
-    _Error_Handler(__FILE__, __LINE__);
+    /* send everytime timer elapses */
+    TimerInit( &TxTimer, OnTxTimerEvent );
+    TimerSetValue( &TxTimer,  APP_TX_DUTYCYCLE); 
+    OnTxTimerEvent();
   }
-
-}
-
-/** Configure pins as
-        * Analog
-        * Input
-        * Output
-        * EVENT_OUT
-        * EXTI
-*/
-static void MX_GPIO_Init(void)
-{
-
-  GPIO_InitTypeDef GPIO_InitStruct;
-
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOH_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin : B1_Pin */
-  GPIO_InitStruct.Pin = B1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : LD2_Pin */
-  GPIO_InitStruct.Pin = LD2_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
-
-}
-
-/* USER CODE BEGIN 4 */
-
-/* USER CODE END 4 */
-
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  file: The file name as string.
-  * @param  line: The line in file as a number.
-  * @retval None
-  */
-void _Error_Handler(char *file, int line)
-{
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  while(1)
+  else
   {
+    /* send everytime button is pushed */
+    GPIO_InitTypeDef initStruct={0};
+  
+    initStruct.Mode =GPIO_MODE_IT_RISING;
+    initStruct.Pull = GPIO_PULLUP;
+    initStruct.Speed = GPIO_SPEED_HIGH;
+
+    HW_GPIO_Init( USER_BUTTON_GPIO_PORT, USER_BUTTON_PIN, &initStruct );
+    HW_GPIO_SetIrq( USER_BUTTON_GPIO_PORT, USER_BUTTON_PIN, 0, Send );
   }
-  /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
-void assert_failed(uint8_t* file, uint32_t line)
+static void LORA_ConfirmClass ( DeviceClass_t Class )
 {
-  /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
+  PRINTF("switch to class %c done\n\r","ABC"[Class] );
+
+  /*Optionnal*/
+  /*informs the server that switch has occurred ASAP*/
+  AppData.BuffSize = 0;
+  AppData.Port = LORAWAN_APP_PORT;
+  
+  LORA_send( &AppData, LORAWAN_UNCONFIRMED_MSG);
 }
-#endif /* USE_FULL_ASSERT */
 
-/**
-  * @}
-  */
+static void LORA_TxNeeded ( void )
+{
+  AppData.BuffSize = 0;
+  AppData.Port = LORAWAN_APP_PORT;
+  
+  LORA_send( &AppData, LORAWAN_UNCONFIRMED_MSG);
+}
 
-/**
-  * @}
-  */
-
+#ifdef USE_B_L072Z_LRWAN1
+static void OnTimerLedEvent( void )
+{
+  LED_Off( LED_RED1 ) ; 
+}
+#endif
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
