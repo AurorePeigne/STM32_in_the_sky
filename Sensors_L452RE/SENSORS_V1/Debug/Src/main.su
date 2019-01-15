@@ -1,0 +1,7 @@
+main.c:231:6:SystemClock_Config	200	static
+main.c:297:6:get_register	32	static
+main.c:304:6:get_temp	32	static
+main.c:349:6:get_hum	32	static
+main.c:383:6:get_press	24	static
+main.c:179:5:main	8	static
+main.c:412:6:_Error_Handler	0	static
