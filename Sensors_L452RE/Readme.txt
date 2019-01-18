@@ -1,1 +1,2 @@
 SENSORS_V1 contains the code for the humidity, the temperature and the pression sensors with the Nucleo-L452RE board.
+SENSORS_V2 contains the code for the humidity, the temperature and the pression sensors with the Nucleo-L452RE board. With more comments and the pression in bar.
