@@ -1,0 +1,492 @@
+/*
+ * lora_fonctions.h
+ *
+ *  Created on: 21 févr. 2019
+ *      Author: Max
+ */
+
+#ifndef LORA_FONCTIONS_H_
+#define LORA_FONCTIONS_H_
+
+#include "stm32l4xx_hal.h"
+#include "usart.h"
+#include "gpio.h"
+#include "string.h"
+
+
+/* ************************************************************************
+ * ************************************************************************
+ * 						FONCTIONS LPUART END TRANSFER
+ * ************************************************************************
+ * ************************************************************************
+ */
+
+
+
+static void UART_EndTxTransfer(UART_HandleTypeDef *huart)
+{
+#if defined(USART_CR1_FIFOEN)
+  /* Disable TXEIE, TCIE, TXFT interrupts */
+  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_TXEIE_TXFNFIE | USART_CR1_TCIE));
+  CLEAR_BIT(huart->Instance->CR3, (USART_CR3_TXFTIE));
+#else
+  /* Disable TXEIE and TCIE interrupts */
+  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_TXEIE | USART_CR1_TCIE));
+#endif
+
+  /* At end of Tx process, restore huart->gState to Ready */
+  huart->gState = HAL_UART_STATE_READY;
+}
+
+
+/**
+  * @brief  End ongoing Rx transfer on UART peripheral (following error detection or Reception completion).
+  * @param huart UART handle.
+  * @retval None
+  */
+static void UART_EndRxTransfer(UART_HandleTypeDef *huart)
+{
+  /* Disable RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
+#if defined(USART_CR1_FIFOEN)
+  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE_RXFNEIE | USART_CR1_PEIE));
+  CLEAR_BIT(huart->Instance->CR3, (USART_CR3_EIE | USART_CR3_RXFTIE));
+#else
+  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE));
+  CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
+#endif
+
+  /* At end of Rx process, restore huart->RxState to Ready */
+  huart->RxState = HAL_UART_STATE_READY;
+
+  /* Reset RxIsr function pointer */
+  huart->RxISR = NULL;
+}
+
+
+
+
+/* ************************************************************************
+ * ************************************************************************
+ * 							FONCTIONS LORA SET
+ * ************************************************************************
+ * ************************************************************************
+ */
+
+
+
+void LORA_AT_AK_SET( const char* DATA,uint8_t DATA_SIZE,uint8_t RX_BUFF_SIZE){
+uint8_t comm[]={"AT+AK="};
+uint8_t COMMAND_SIZE=sizeof(comm);
+	   char src1[DATA_SIZE],src2[2], out[COMMAND_SIZE+DATA_SIZE+2];
+	     strcpy(src1,  DATA);
+	     strcpy(src2,  "\r\n");
+	     strcpy(out,comm );
+	     strcat(out, src1);
+	     strcat(out, src2);
+uint8_t in_set[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out)-1, HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_set, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+
+
+HAL_Delay(100);
+
+}
+
+
+
+void LORA_AT_APPEUI_SET( const char* DATA,uint8_t DATA_SIZE,uint8_t RX_BUFF_SIZE){
+uint8_t comm[]={"AT+APPEUI="};
+uint8_t COMMAND_SIZE=sizeof(comm);
+	   char src1[DATA_SIZE],src2[2], out[COMMAND_SIZE+DATA_SIZE+2];
+	     strcpy(src1,  DATA);
+	     strcpy(src2,  "\r\n");
+	     strcpy(out,comm );
+	     strcat(out, src1);
+	     strcat(out, src2);
+uint8_t in_set[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out)-1, HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_set, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+
+
+HAL_Delay(100);
+
+}
+
+void LORA_AT_ASK_SET( const char* DATA,uint8_t DATA_SIZE,uint8_t RX_BUFF_SIZE){
+uint8_t comm[]={"AT+ASK="};
+uint8_t COMMAND_SIZE=sizeof(comm);
+	   char src1[DATA_SIZE],src2[2], out[COMMAND_SIZE+DATA_SIZE+2];
+	     strcpy(src1,  DATA);
+	     strcpy(src2,  "\r\n");
+	     strcpy(out,comm );
+	     strcat(out, src1);
+	     strcat(out, src2);
+uint8_t in_set[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out)-1, HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_set, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+
+
+HAL_Delay(100);
+
+}
+
+
+void LORA_AT_NSK_SET( const char* DATA,uint8_t DATA_SIZE,uint8_t RX_BUFF_SIZE){
+uint8_t comm[]={"AT+NSK="};
+uint8_t COMMAND_SIZE=sizeof(comm);
+	   char src1[DATA_SIZE],src2[2], out[COMMAND_SIZE+DATA_SIZE+2];
+	     strcpy(src1,  DATA);
+	     strcpy(src2,"\r\n");
+	     strcpy(out,comm );
+	     strcat(out, src1);
+	     strcat(out, src2);
+uint8_t in_set[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out)-1, HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_set, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+
+
+HAL_Delay(100);
+
+}
+
+void LORA_AT_CLASS_SET( const char* DATA,uint8_t DATA_SIZE,uint8_t RX_BUFF_SIZE){
+uint8_t comm[]={"AT+CLASS="};
+uint8_t COMMAND_SIZE=sizeof(comm);
+	   char src1[DATA_SIZE],src2[2], out[COMMAND_SIZE+DATA_SIZE+2];
+	     strcpy(src1,  DATA);
+	     strcpy(src2,  "\r\n");
+	     strcpy(out,comm);
+	     strcat(out, src1);
+	     strcat(out, src2);
+uint8_t in_set[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out)-1, HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_set, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+
+
+HAL_Delay(100);
+
+}
+
+void LORA_AT_DC_SET( const char* DATA,uint8_t DATA_SIZE,uint8_t RX_BUFF_SIZE){
+uint8_t comm[]={"AT+DC="};
+uint8_t COMMAND_SIZE=sizeof(comm);
+	   char src1[DATA_SIZE],src2[2], out[COMMAND_SIZE+DATA_SIZE+2];
+	     strcpy(src1,  DATA);
+	     strcpy(src2,  "\r\n");
+	     strcpy(out,comm );
+	     strcat(out, src1);
+	     strcat(out, src2);
+uint8_t in_set[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out)-1, HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_set, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+
+
+HAL_Delay(100);
+
+}
+
+
+void LORA_AT_DR_SET( const char* DATA,uint8_t DATA_SIZE,uint8_t RX_BUFF_SIZE){
+uint8_t comm[]={"AT+DR="};
+uint8_t COMMAND_SIZE=sizeof(comm);
+	   char src1[DATA_SIZE],src2[2], out[COMMAND_SIZE+DATA_SIZE+2];
+	     strcpy(src1,  DATA);
+	     strcpy(src2,  "\r\n");
+	     strcpy(out,comm);
+	     strcat(out, src1);
+	     strcat(out, src2);
+uint8_t in_set[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out)-1, HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_set, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+
+
+HAL_Delay(100);
+
+}
+/*
+void LORA_AT_EUI_SET( const char* DATA,uint8_t DATA_SIZE,uint8_t RX_BUFF_SIZE){
+uint8_t comm[]={"AT+EUI="};
+uint8_t COMMAND_SIZE=sizeof(comm);
+	   char src1[DATA_SIZE],src2[2], out[COMMAND_SIZE+DATA_SIZE+2];
+	     strcpy(src1,  DATA);
+	     strcpy(src2,  "\r\n");
+	     strcpy(out,comm);
+	     strcat(out, src1);
+	     strcat(out, src2);
+uint8_t in_set[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out)-1, HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_set, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+
+
+HAL_Delay(100);
+
+}
+*/
+/*
+void LORA_AT_JSTA_SET( const char* DATA,uint8_t DATA_SIZE,uint8_t RX_BUFF_SIZE){
+uint8_t comm[]={"AT+JSTA="};
+uint8_t COMMAND_SIZE=sizeof(comm);
+	   char src1[DATA_SIZE],src2[2], out[COMMAND_SIZE+DATA_SIZE+2];
+	     strcpy(src1,  DATA);
+	     strcpy(src2,  "\r\n");
+	     strcpy(out,"AT+AK=" );
+	     strcat(out, src1);
+	     strcat(out, src2);
+uint8_t in_set[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out)-1, HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_set, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+
+
+HAL_Delay(100);
+
+}
+*/
+
+
+
+/* ************************************************************************
+ * ************************************************************************
+ * 							FONCTIONS LORA GET
+ * ************************************************************************
+ * ************************************************************************
+ */
+
+
+
+void LORA_AT_AK_GET(void){
+//Obligé de mettre la taille de retour attendue pour la commande
+//uint8_t RX_BUFF_SIZE=53;
+//On entre directement ici la commande et initialise le tableau de retour
+uint8_t  out[]={"AT+AK\r\n"};
+uint8_t RX_BUFF_SIZE=53;
+uint8_t in_get[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out), HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_get, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+    	HAL_Delay(100);
+}
+
+void LORA_AT_APPEUI_GET(void){
+//Obligé de mettre la taille de retour attendue pour la commande
+//uint8_t RX_BUFF_SIZE=53;
+//On entre directement ici la commande et initialise le tableau de retour
+uint8_t  out[]={"AT+APPEUI\r\n"};
+uint8_t RX_BUFF_SIZE=30;
+uint8_t in_get[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out), HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_get, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+    	HAL_Delay(100);
+}
+
+void LORA_AT_ASK_GET(void){
+//Obligé de mettre la taille de retour attendue pour la commande
+//uint8_t RX_BUFF_SIZE=53;
+//On entre directement ici la commande et initialise le tableau de retour
+uint8_t  out[]={"AT+ASK\r\n"};
+uint8_t RX_BUFF_SIZE=53;
+uint8_t in_get[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out), HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_get, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+    	HAL_Delay(100);
+}
+
+
+void LORA_AT_NSK_GET(void){
+//Obligé de mettre la taille de retour attendue pour la commande
+//uint8_t RX_BUFF_SIZE=53;
+//On entre directement ici la commande et initialise le tableau de retour
+uint8_t  out[]={"AT+NSK\r\n"};
+uint8_t RX_BUFF_SIZE=53;
+uint8_t in_get[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out), HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_get, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+    	HAL_Delay(100);
+}
+
+
+void LORA_AT_CLASS_GET(void){
+//Obligé de mettre la taille de retour attendue pour la commande
+//uint8_t RX_BUFF_SIZE=53;
+//On entre directement ici la commande et initialise le tableau de retour
+uint8_t  out[]={"AT+CLASS\r\n"};
+uint8_t RX_BUFF_SIZE=5;
+uint8_t in_get[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out), HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_get, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+    	HAL_Delay(100);
+}
+
+void LORA_AT_DR_GET(void){
+//Obligé de mettre la taille de retour attendue pour la commande
+//uint8_t RX_BUFF_SIZE=53;
+//On entre directement ici la commande et initialise le tableau de retour
+uint8_t  out[]={"AT+DR\r\n"};
+uint8_t RX_BUFF_SIZE=4;
+uint8_t in_get[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out), HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_get, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+    	HAL_Delay(100);
+}
+
+void LORA_AT_DC_GET(void){
+//Obligé de mettre la taille de retour attendue pour la commande
+//uint8_t RX_BUFF_SIZE=53;
+//On entre directement ici la commande et initialise le tableau de retour
+uint8_t  out[]={"AT+DC\r\n"};
+uint8_t RX_BUFF_SIZE=5;
+uint8_t in_get[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out), HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_get, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+    	HAL_Delay(100);
+}
+
+void LORA_AT_EUI_GET(void){
+//Obligé de mettre la taille de retour attendue pour la commande
+//uint8_t RX_BUFF_SIZE=53;
+//On entre directement ici la commande et initialise le tableau de retour
+uint8_t  out[]={"AT+EUI\r\n"};
+uint8_t RX_BUFF_SIZE=29;
+uint8_t in_get[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out), HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_get, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+    	HAL_Delay(100);
+}
+
+
+
+
+
+
+
+
+
+
+
+/* ************************************************************************
+ * ************************************************************************
+ * 							FONCTIONS LORA RESET
+ * ************************************************************************
+ * ************************************************************************
+ */
+
+
+
+
+
+void LORA_AT_ATZ(void){
+//Obligé de mettre la taille de retour attendue pour la commande
+//uint8_t RX_BUFF_SIZE=53;
+//On entre directement ici la commande et initialise le tableau de retour
+uint8_t  out[]={"ATZ\r\n"};
+uint8_t RX_BUFF_SIZE=2;
+uint8_t in_get[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out), HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_get, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+    	HAL_Delay(100);
+}
+
+
+
+
+
+
+
+void LORA_AT_JSDA(void){
+//Obligé de mettre la taille de retour attendue pour la commande
+//uint8_t RX_BUFF_SIZE=53;
+//On entre directement ici la commande et initialise le tableau de retour
+uint8_t  out[]={"AT+JSTA\r\n"}; //joined status
+uint8_t RX_BUFF_SIZE=5;
+uint8_t in_get[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out), HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_get, RX_BUFF_SIZE, 100) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+    	HAL_Delay(100);
+}
+
+
+/* ************************************************************************
+ * ************************************************************************
+ * 						FONCTIONS LORA COMMUNICATIONS
+ * ************************************************************************
+ * ************************************************************************
+ */
+
+
+void LORA_AT_JOIN_SET( const char* DATA,uint8_t DATA_SIZE,uint8_t RX_BUFF_SIZE){
+uint8_t comm[]={"AT+JOIN="};
+uint8_t COMMAND_SIZE=sizeof(comm);
+	   char src1[DATA_SIZE],src2[2], out[COMMAND_SIZE+DATA_SIZE+2];
+	     strcpy(src1,  DATA);
+	     strcpy(src2,  "\r\n");
+	     strcpy(out,comm );
+	     strcat(out, src1);
+	     strcat(out, src2);
+uint8_t in_set[RX_BUFF_SIZE];
+    	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out)-1, HAL_TIMEOUT) != HAL_OK);
+     	UART_EndTxTransfer(&hlpuart1);
+
+      	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in_set, RX_BUFF_SIZE, 600000) != HAL_OK);
+    	UART_EndRxTransfer(&hlpuart1);
+
+
+HAL_Delay(100);
+
+}
+
+#endif /* LORA_FONCTIONS_H_ */
