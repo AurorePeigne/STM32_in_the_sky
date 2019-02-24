@@ -1,0 +1,1 @@
+TEMP_HUM_PRESS_Sensors_V1 contains the code for the humidity, the temperature and the pression sensors with the Nucleo-L152RE.
