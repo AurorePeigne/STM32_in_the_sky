@@ -1,0 +1,16 @@
+main.c:253:6:SystemClock_Config	248	static
+main.c:569:5:_write	8	static
+main.c:575:6:HAL_ADC_ConvCpltCallback	8	static
+main.c:585:6:ADC_Init	0	static
+main.c:596:6:READ_SENSOR_MQ135	0	static
+main.c:602:10:est_negatif	0	static
+main.c:609:10:concatenate	0	static
+main.c:614:10:div8	0	static
+main.c:619:10:div2	0	static
+main.c:624:6:Who_am_i	24	static
+main.c:197:5:main	64	static
+main.c:632:6:Register	24	static
+main.c:639:6:temperature_IKSO1A2	56	static
+main.c:579:6:HAL_TIM_PeriodElapsedCallback	8	static
+main.c:689:6:humidity_IKSO1A2	56	static
+main.c:731:6:Error_Handler	0	static
