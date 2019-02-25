@@ -1,0 +1,9 @@
+I2C_SENSORS_L476RG.h:124:10:est_negatif	0	static
+I2C_SENSORS_L476RG.h:134:6:TEMPandHUM_init	24	static
+I2C_SENSORS_L476RG.h:142:6:PRES_init	32	static
+I2C_SENSORS_L476RG.h:156:6:get_TEMP	56	static
+I2C_SENSORS_L476RG.h:206:6:get_HUM	56	static
+I2C_SENSORS_L476RG.h:238:6:get_PRES	56	static
+main.c:145:6:SystemClock_Config	232	static
+main.c:93:5:main	48	static
+main.c:317:6:Error_Handler	0	static
