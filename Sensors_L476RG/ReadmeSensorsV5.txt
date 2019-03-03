@@ -11,6 +11,15 @@ Connection with nucleo L476RG
   *	    printf
   *
   *	    add IKSO1A2 : Temperature and Humidity & in V5 pressure
+
+  *	    Affiche toutes les 5 secs :
+  *	    Sensors
+  *	    	----------------------------
+  *		SENSOR Gaz : 3570
+  *		Temperature :241
+  *		Humidity :47
+  *		Pressure :1028
+  *		----------------------------
   *
   Functions: 
 void READ_SENSOR_MQ135(void);// Read sensor gaz
