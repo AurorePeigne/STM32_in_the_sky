@@ -1,0 +1,1 @@
+The LORA folder contains the projects concerning LoRa
