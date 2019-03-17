@@ -1,0 +1,20 @@
+--cpu=Cortex-M4.fp --branchpatch=sdcomp-29491-629360
+"stm32l476rg_nucleo\system_stm32l4xx.o"
+"stm32l476rg_nucleo\stm32l4xx_nucleo.o"
+"stm32l476rg_nucleo\main.o"
+"stm32l476rg_nucleo\stm32l4xx_hal_msp.o"
+"stm32l476rg_nucleo\stm32l4xx_it.o"
+"stm32l476rg_nucleo\stm32l4xx_hal_gpio.o"
+"stm32l476rg_nucleo\stm32l4xx_hal.o"
+"stm32l476rg_nucleo\stm32l4xx_hal_rtc.o"
+"stm32l476rg_nucleo\stm32l4xx_hal_cortex.o"
+"stm32l476rg_nucleo\stm32l4xx_hal_rcc_ex.o"
+"stm32l476rg_nucleo\stm32l4xx_hal_rtc_ex.o"
+"stm32l476rg_nucleo\stm32l4xx_hal_pwr.o"
+"stm32l476rg_nucleo\stm32l4xx_hal_rcc.o"
+"stm32l476rg_nucleo\stm32l4xx_hal_pwr_ex.o"
+"stm32l476rg_nucleo\startup_stm32l476xx.o"
+--library_type=microlib --strict --scatter "STM32L476RG_NUCLEO\STM32L476RG_NUCLEO.sct"
+--diag_suppress=L6329 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "STM32L476RG_NUCLEO.map" -o STM32L476RG_NUCLEO\STM32L476RG_NUCLEO.axf
