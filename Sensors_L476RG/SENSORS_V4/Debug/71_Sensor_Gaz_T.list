@@ -23,27 +23,27 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
   9 .ARM.attributes 00000030  00000000  00000000  00020088  2**0
                   CONTENTS, READONLY
- 10 .debug_info   000198cb  00000000  00000000  000200b8  2**0
+ 10 .debug_info   000198d3  00000000  00000000  000200b8  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_abbrev 00002b78  00000000  00000000  00039983  2**0
+ 11 .debug_abbrev 00002b78  00000000  00000000  0003998b  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_loc    0000e227  00000000  00000000  0003c4fb  2**0
+ 12 .debug_loc    0000e227  00000000  00000000  0003c503  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_aranges 00000f90  00000000  00000000  0004a728  2**3
+ 13 .debug_aranges 00000f90  00000000  00000000  0004a730  2**3
                   CONTENTS, READONLY, DEBUGGING
- 14 .debug_ranges 00001588  00000000  00000000  0004b6b8  2**3
+ 14 .debug_ranges 00001588  00000000  00000000  0004b6c0  2**3
                   CONTENTS, READONLY, DEBUGGING
- 15 .debug_line   00008e76  00000000  00000000  0004cc40  2**0
+ 15 .debug_line   00008e76  00000000  00000000  0004cc48  2**0
                   CONTENTS, READONLY, DEBUGGING
- 16 .debug_str    00006734  00000000  00000000  00055ab6  2**0
+ 16 .debug_str    0000673c  00000000  00000000  00055abe  2**0
                   CONTENTS, READONLY, DEBUGGING
- 17 .comment      0000007c  00000000  00000000  0005c1ea  2**0
+ 17 .comment      0000007c  00000000  00000000  0005c1fa  2**0
                   CONTENTS, READONLY
- 18 .debug_frame  000037ac  00000000  00000000  0005c268  2**2
+ 18 .debug_frame  000037ac  00000000  00000000  0005c278  2**2
                   CONTENTS, READONLY, DEBUGGING
- 19 .stab         00000084  00000000  00000000  0005fa14  2**2
+ 19 .stab         00000084  00000000  00000000  0005fa24  2**2
                   CONTENTS, READONLY, DEBUGGING
- 20 .stabstr      00000117  00000000  00000000  0005fa98  2**0
+ 20 .stabstr      00000117  00000000  00000000  0005faa8  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:

@@ -155,58 +155,77 @@ int main(void)
 
 
 
-
+/*
 LORA_AT_APPEUI_SET("900dcafe00000001",16,4);//001
 MX_LPUART1_UART_Init();
-
-
-LORA_AT_APPEUI_GET();
-MX_LPUART1_UART_Init();
-/*
-LORA_AT_AK_SET("2b7e151628aed2a6abf7158809cf4f3c",32,4); //last = c
-MX_LPUART1_UART_Init();
-
-LORA_AT_NSK_SET("2b7e151628aed2a6abf7158809cf4f3c",32,4); //last = c
-MX_LPUART1_UART_Init();
-
-LORA_AT_ASK_SET("2b7e151628aed2a6abf7158809cf4f3c",32,4);//last = c
-MX_LPUART1_UART_Init();
-
-LORA_AT_AK_GET();
-MX_LPUART1_UART_Init();
-
-LORA_AT_NSK_GET();
-MX_LPUART1_UART_Init();
-
-LORA_AT_ASK_GET();
-MX_LPUART1_UART_Init();
-
-LORA_AT_DR_GET();
-MX_LPUART1_UART_Init();
-
-LORA_AT_DC_GET();
-MX_LPUART1_UART_Init();
-
-LORA_AT_CLASS_GET();
-MX_LPUART1_UART_Init();
-
-LORA_AT_EUI_GET();
-MX_LPUART1_UART_Init();
-
-LORA_AT_JOIN_SET("0",1,10);
-MX_LPUART1_UART_Init();
-
 */
+
+
+
+
+
+
+
+
+
+
+ LORA_AT_SET("AT+APPEUI=70b3d57ed0014d9e");//APPEUI=900dcafe00000001");//last = 1
+ HAL_UART_DeInit(&hlpuart1);
+ HAL_UART_Init(&hlpuart1);
+
+ LORA_AT_SET("AT+ASK=9a2e35347a2da3c76f583e31db2fadab");//APPEUI=900dcafe00000001");//last = 1
+  HAL_UART_DeInit(&hlpuart1);
+  HAL_UART_Init(&hlpuart1);
+
+
+
+  LORA_AT_SET("AT+NSK=1a47ad204af7bba26a11acd46a43d5c7");//APPEUI=900dcafe00000001");//last = 1
+   HAL_UART_DeInit(&hlpuart1);
+   HAL_UART_Init(&hlpuart1);
+
+
 /*
+ LORA_AT_GET("AT+EUI",42);
+ HAL_UART_DeInit(&hlpuart1);
+ HAL_UART_Init(&hlpuart1);
 
-   	while(HAL_UART_Transmit(&hlpuart1, (uint8_t *)out, sizeof(out), HAL_TIMEOUT) != HAL_OK);
-    	UART_EndTxTransfer(&hlpuart1);
 
 
-     	while(HAL_UART_Receive(&hlpuart1, (uint8_t *)in, RX_BUFF_SIZE, 100) != HAL_OK);
-   	UART_EndRxTransfer(&hlpuart1);
-
+ LORA_AT_GET("AT+APPEUI",42);
+ HAL_UART_DeInit(&hlpuart1);
+ HAL_UART_Init(&hlpuart1);
 */
+
+/*
+ LORA_AT_SET("AT+AK=886f53be9f8142a1fccA26985ffc8b98");//9a2e35347a2da3c76f583e31db2fadab   886f53be9f8142a1fccA26985ffc8b98
+  HAL_UART_DeInit(&hlpuart1);
+  HAL_UART_Init(&hlpuart1);
+
+  */
+
+
+  LORA_AT_SET("AT+DC=0");//APPEUI=900dcafe00000001");//last = 1
+  HAL_UART_DeInit(&hlpuart1);
+  HAL_UART_Init(&hlpuart1);
+
+
+
+
+  LORA_AT_SET("AT+ADDR=26011a95");//APPEUI=900dcafe00000001");//last = 1
+  HAL_UART_DeInit(&hlpuart1);
+  HAL_UART_Init(&hlpuart1);
+
+
+
+
+
+
+LORA_AT_JOIN_SET(0);
+HAL_UART_DeInit(&hlpuart1);
+HAL_UART_Init(&hlpuart1);
+
+
+
 		 get_TEMP();
 		 get_HUM();
 		 get_PRES();
@@ -214,12 +233,16 @@ MX_LPUART1_UART_Init();
 char dest1[4];
 char dest2[4];
 char dest3[4];
+HAL_Delay(100);
 LORA_AT_SEND(CONV_CHAR(temp16[0],dest1),CONV_CHAR(hum16[0],dest2),12,5);
+HAL_UART_DeInit(&hlpuart1);
+HAL_UART_Init(&hlpuart1);
 
     	while(1){
 
-
-
+    		LORA_AT_SEND(CONV_CHAR(temp16[0],dest1),CONV_CHAR(hum16[0],dest2),12,5);
+    		HAL_UART_DeInit(&hlpuart1);
+    		HAL_UART_Init(&hlpuart1);
       		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
       		HAL_Delay(100);
 
