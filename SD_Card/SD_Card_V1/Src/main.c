@@ -130,7 +130,7 @@ HAL_Delay(100);
 	  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, 1);
 	  char myFileName[] = "WRITE1.TXT";
 
-	  if(f_open(&myFILE, myFileName, (FA_WRITE | FA_CREATE_ALWAYS)) ==FR_OK){
+	  if(f_open(&myFILE, myFileName, (FA_WRITE | FA_CREATE_ALWAYS)) == FR_OK){
 
 		  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, 1);
 

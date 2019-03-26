@@ -1,0 +1,12 @@
+SENSORS_V6.h:166:10:est_negatif	0	static
+SENSORS_V6.h:176:6:TEMP_HUM_init	24	static
+SENSORS_V6.h:183:6:PRES_init	32	static
+SENSORS_V6.h:194:6:MAGN_init	24	static
+SENSORS_V6.h:201:6:get_TEMP	56	static
+SENSORS_V6.h:243:6:get_HUM	56	static
+SENSORS_V6.h:267:6:get_PRES	56	static
+SENSORS_V6.h:287:6:get_MAGN	48	static
+SENSORS_V6.h:314:6:SD_SENSORS	24	static
+main.c:163:6:SystemClock_Config	248	static
+main.c:104:5:main	8	static
+main.c:230:6:Error_Handler	0	static
