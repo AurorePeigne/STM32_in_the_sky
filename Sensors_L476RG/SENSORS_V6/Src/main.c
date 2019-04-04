@@ -50,18 +50,19 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "fatfs.h"
 #include "i2c.h"
 #include "sdmmc.h"
 #include "usart.h"
 #include "gpio.h"
 
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include <SENSORS_V6.h>
+#include "SENSORS_V6.h"
 #include "string.h"
+#include "gps.h"
 
 /* USER CODE END Includes */
 
@@ -101,7 +102,8 @@ void SystemClock_Config(void);
   * @brief  The application entry point.
   * @retval int
   */
-int main(void){
+int main(void)
+{
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -128,12 +130,17 @@ int main(void){
   MX_I2C1_Init();
   MX_SDMMC1_SD_Init();
   MX_FATFS_Init();
+  MX_USART1_UART_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
   TEMP_HUM_init();
   PRES_init();
   MAGN_init();
+  GAS_Init();
 
+
+  uint32_t GPS_COORD[3];
 
   /* USER CODE END 2 */
 
@@ -141,12 +148,16 @@ int main(void){
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  get_TEMP();	//TEMPERATURE		(°C)
-	  get_HUM();	//HUMIDITE			(%)
-	  get_PRES();	//PRESSION			(mbar ou hPa)
-	  get_MAGN();	//CHAMP MAGNETIQUE	(mgauss)
+	  get_TEMP();				//TEMPERATURE		(°C)
+	  get_HUM();				//HUMIDITE			(%)
+	  get_PRES();				//PRESSION			(mbar ou hPa)
+	  get_MAGN();				//CHAMP MAGNETIQUE	(mgauss)
+	  get_GAS();				//GAS				()
 
-	  SD_SENSORS();
+	  GPS_GETPOS(GPS_COORD);	//POSITION GPS		()
+
+	  SD_SENSORS(GPS_COORD[0],GPS_COORD[1],GPS_COORD[2]);
+
 
     /* USER CODE END WHILE */
 
@@ -195,10 +206,13 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_I2C1
-                              |RCC_PERIPHCLK_SDMMC1;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2
+                              |RCC_PERIPHCLK_I2C1|RCC_PERIPHCLK_SDMMC1
+                              |RCC_PERIPHCLK_ADC;
+  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
+  PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
   PeriphClkInit.Sdmmc1ClockSelection = RCC_SDMMC1CLKSOURCE_PLLSAI1;
   PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_HSI;
   PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
@@ -206,7 +220,7 @@ void SystemClock_Config(void)
   PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV7;
   PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV4;
   PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
-  PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_48M2CLK;
+  PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_48M2CLK|RCC_PLLSAI1_ADC1CLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();

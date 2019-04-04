@@ -1,8 +1,8 @@
-gps.h:49:11:CONV_CHAR32	16	static
-gps.h:58:13:UART_EndTxTransfer	16	static
-gps.h:79:13:UART_EndRxTransfer	16	static
-gps.h:98:5:lora_test	40	static
-gps.h:116:11:GPS_GETPOS	568	dynamic
+gps.h:51:11:CONV_CHAR32	16	static
+gps.h:60:13:UART_EndTxTransfer	16	static
+gps.h:81:13:UART_EndRxTransfer	16	static
+gps.h:100:5:lora_test	40	static
+gps.h:118:11:GPS_GETPOS	568	dynamic
 I2C_stack.h:126:10:est_negatif	16	static
 I2C_stack.h:136:6:TEMPandHUM_init	24	static
 I2C_stack.h:143:6:PRES_init	24	static
@@ -17,5 +17,5 @@ lora_fonction.h:126:6:LORA_AT_JSDA	48	dynamic
 lora_fonction.h:151:9:LORA_AT_JOIN_SET	56	static
 lora_fonction.h:199:6:LORA_AT_SEND	344	static
 main.c:72:5:main	88	static
-main.c:297:6:SystemClock_Config	232	static
-main.c:358:6:Error_Handler	4	static
+main.c:298:6:SystemClock_Config	232	static
+main.c:359:6:Error_Handler	4	static

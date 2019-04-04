@@ -13,6 +13,7 @@
 #include "string.h"
 
 I2C_HandleTypeDef hi2c1;
+ADC_HandleTypeDef hadc1;
 
 //TEMPERATURE/////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -147,7 +148,12 @@ uint16_t magnZ16[1];
 
 uint16_t magn16[1];
 
-//SD//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//GAS//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+uint16_t gas16[1];
+
+//SD///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 FATFS myFATFS;
 FIL myFILE;
@@ -158,6 +164,12 @@ char temp_d_char[2];
 char hum_char[3];
 char pres_char[5];
 char magn_char[4];
+
+char lon_char[20];
+char lat_char[20];
+char alt_char[20];
+
+char gas_char[20];
 
 
 
@@ -194,6 +206,16 @@ void PRES_init(void)
 void MAGN_init(void)
 {
 	HAL_I2C_Mem_Write(&hi2c1,0x3C, addr_CFG_REG_A_M[0], 1, CFG_REG_A_M, 1, I2C_TIMEOUT);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void GAS_Init()
+{
+	if (HAL_ADC_Start_IT(&hadc1)!= HAL_OK)
+		{
+			Error_Handler();
+		}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -309,10 +331,18 @@ void get_MAGN(void)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-void SD_SENSORS(void)
+void get_GAS(void)
 {
+	gas16[0] = HAL_ADC_GetValue(&hadc1);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
+{
+
 	itoa(temp16u[0],temp_u_char,10);
 	itoa(temp16d[0],temp_d_char,10);
 
@@ -321,6 +351,13 @@ void SD_SENSORS(void)
 	itoa(pres32[0],pres_char,10);
 
 	itoa(magn16[0],magn_char,10);
+
+	itoa(gas16[0],gas_char, 10);
+
+	uint32_t alti32 = alt32/100;
+	itoa(lon32,lon_char,10);
+	itoa(lat32,lat_char,10);
+	itoa(alti32,alt_char,10);
 
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
 	HAL_Delay(100);
@@ -351,14 +388,27 @@ void SD_SENSORS(void)
 		  f_write(&myFILE, hum_char, strlen(hum_char), &testByte);
 		  f_write(&myFILE, "\t%\t", 3, &testByte);
 
-
 		  f_write(&myFILE, "M:\t", 3, &testByte);
 		  f_write(&myFILE, magn_char, strlen(magn_char), &testByte);
-		  f_write(&myFILE, "\tmgauss\n", 8, &testByte);
+		  f_write(&myFILE, "\tmgauss\t", 8, &testByte);
+
+		  f_write(&myFILE, "Lon:\t", 5, &testByte);
+		  f_write(&myFILE, lon_char, strlen(lon_char), &testByte);
+		  f_write(&myFILE, "\t", 1, &testByte);
+		  f_write(&myFILE, "Lat:\t", 5, &testByte);
+		  f_write(&myFILE, lat_char, strlen(lat_char), &testByte);
+		  f_write(&myFILE, "\t", 1, &testByte);
+		  f_write(&myFILE, "Alt:\t", 5, &testByte);
+		  f_write(&myFILE, alt_char, strlen(alt_char), &testByte);
+		  f_write(&myFILE, "\t", 1, &testByte);
+
+		  f_write(&myFILE, "G:\t", 3, &testByte);
+		  f_write(&myFILE, gas_char, strlen(gas_char), &testByte);
+		  f_write(&myFILE, "\r\n", 2, &testByte);
 
 		  f_close(&myFILE);
 
-		  HAL_Delay(60000);
+		  HAL_Delay(900);
 
 		  //we change the state of the LED
 		  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);

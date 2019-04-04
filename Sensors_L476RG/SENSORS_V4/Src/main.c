@@ -85,7 +85,7 @@ UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 //ADC for gaz sensor
-static  uint16_t valeurADC =0;
+static  uint16_t valeurADC = 0;
 
 //I2C
 uint8_t sub_addr_who_am_i[1]={0x0F}; //Who AM I

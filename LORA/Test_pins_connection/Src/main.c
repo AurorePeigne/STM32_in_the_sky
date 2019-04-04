@@ -128,57 +128,57 @@ int main(void)
 
   //*****************************INIT LORA****************************//
 
-  LORA_AT_SET("AT+ATZ");
-  HAL_UART_DeInit(&hlpuart1);
-  HAL_UART_Init(&hlpuart1);
-
-
-
-  LORA_AT_SET("AT+APPEUI=70b3d57ed0014d9e");//APPEUI=900dcafe00000001");//last = 1
-  HAL_UART_DeInit(&hlpuart1);
-  HAL_UART_Init(&hlpuart1);
-
-  LORA_AT_SET("AT+ASK=9a2e35347a2da3c76f583e31db2fadab");
-   HAL_UART_DeInit(&hlpuart1);
-   HAL_UART_Init(&hlpuart1);
-
-
-
-   LORA_AT_SET("AT+NSK=1a47ad204af7bba26a11acd46a43d5c7");
-    HAL_UART_DeInit(&hlpuart1);
-    HAL_UART_Init(&hlpuart1);
-
-
-
-
-
-
-   LORA_AT_SET("AT+DC=0");
-   HAL_UART_DeInit(&hlpuart1);
-   HAL_UART_Init(&hlpuart1);
-
-
-
-
-   LORA_AT_SET("AT+ADDR=26011a95");
-   HAL_UART_DeInit(&hlpuart1);
-   HAL_UART_Init(&hlpuart1);
-
-
-
-
-  LORA_AT_JOIN_SET(0);
-  HAL_UART_DeInit(&hlpuart1);
-  HAL_UART_Init(&hlpuart1);
+//  LORA_AT_SET("AT+ATZ");
+//  HAL_UART_DeInit(&hlpuart1);
+//  HAL_UART_Init(&hlpuart1);
+//
+//
+//
+//  LORA_AT_SET("AT+APPEUI=70b3d57ed0014d9e");//APPEUI=900dcafe00000001");//last = 1
+//  HAL_UART_DeInit(&hlpuart1);
+//  HAL_UART_Init(&hlpuart1);
+//
+//  LORA_AT_SET("AT+ASK=9a2e35347a2da3c76f583e31db2fadab");
+//   HAL_UART_DeInit(&hlpuart1);
+//   HAL_UART_Init(&hlpuart1);
+//
+//
+//
+//   LORA_AT_SET("AT+NSK=1a47ad204af7bba26a11acd46a43d5c7");
+//    HAL_UART_DeInit(&hlpuart1);
+//    HAL_UART_Init(&hlpuart1);
+//
+//
+//
+//
+//
+//
+//   LORA_AT_SET("AT+DC=0");
+//   HAL_UART_DeInit(&hlpuart1);
+//   HAL_UART_Init(&hlpuart1);
+//
+//
+//
+//
+//   LORA_AT_SET("AT+ADDR=26011a95");
+//   HAL_UART_DeInit(&hlpuart1);
+//   HAL_UART_Init(&hlpuart1);
+//
+//
+//
+//
+//  LORA_AT_JOIN_SET(0);
+//  HAL_UART_DeInit(&hlpuart1);
+//  HAL_UART_Init(&hlpuart1);
 
   //*****************************END INIT LORA****************************//
 
 
   //*****************************GET SENSORS DATA****************************//
 
-  get_TEMP();
-  get_HUM();
-  get_PRES();
+//  get_TEMP();
+//  get_HUM();
+//  get_PRES();
 
 
   //*****************************END GET SENSORS DATA****************************//
@@ -216,13 +216,14 @@ int main(void)
     {
       /* USER CODE END WHILE */
 
-  	  LORA_AT_SEND(CONV_CHAR32(GPS_COORD[0],buff_lon),CONV_CHAR32(GPS_COORD[1],buff_lat),CONV_CHAR32(GPS_COORD[2],buff_alt));
+ // 	  LORA_AT_SEND(CONV_CHAR32(GPS_COORD[0],buff_lon),CONV_CHAR32(GPS_COORD[1],buff_lat),CONV_CHAR32(GPS_COORD[2],buff_alt));
 
 
   	  HAL_UART_DeInit(&hlpuart1);
   	  HAL_UART_Init(&hlpuart1);
   		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
       	HAL_Delay(100);
+
 
 
 
