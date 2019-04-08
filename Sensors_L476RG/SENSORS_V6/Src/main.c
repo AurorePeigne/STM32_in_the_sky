@@ -152,9 +152,9 @@ int main(void)
 	  get_HUM();				//HUMIDITE			(%)
 	  get_PRES();				//PRESSION			(mbar ou hPa)
 	  get_MAGN();				//CHAMP MAGNETIQUE	(mgauss)
-	  get_GAS();				//GAS				()
+	  get_GAS();				//GAS				(ppm)
 
-	  GPS_GETPOS(GPS_COORD);	//POSITION GPS		()
+	  GPS_GETPOS(GPS_COORD);	//POSITION GPS		(m)
 
 	  SD_SENSORS(GPS_COORD[0],GPS_COORD[1],GPS_COORD[2]);
 

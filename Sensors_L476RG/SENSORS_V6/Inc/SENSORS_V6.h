@@ -394,17 +394,17 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
 
 		  f_write(&myFILE, "Lon:\t", 5, &testByte);
 		  f_write(&myFILE, lon_char, strlen(lon_char), &testByte);
-		  f_write(&myFILE, "\t", 1, &testByte);
+		  f_write(&myFILE, "\tm\t", 3, &testByte);
 		  f_write(&myFILE, "Lat:\t", 5, &testByte);
 		  f_write(&myFILE, lat_char, strlen(lat_char), &testByte);
-		  f_write(&myFILE, "\t", 1, &testByte);
+		  f_write(&myFILE, "\tm\t", 3, &testByte);
 		  f_write(&myFILE, "Alt:\t", 5, &testByte);
 		  f_write(&myFILE, alt_char, strlen(alt_char), &testByte);
-		  f_write(&myFILE, "\t", 1, &testByte);
+		  f_write(&myFILE, "\tm\t", 3, &testByte);
 
 		  f_write(&myFILE, "G:\t", 3, &testByte);
 		  f_write(&myFILE, gas_char, strlen(gas_char), &testByte);
-		  f_write(&myFILE, "\r\n", 2, &testByte);
+		  f_write(&myFILE, "\tppm\r\n", 6, &testByte);
 
 		  f_close(&myFILE);
 

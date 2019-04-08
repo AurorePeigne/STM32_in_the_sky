@@ -7,19 +7,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   1 .text         000068fc  08000190  08000190  00010190  2**4
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .rodata       000002c8  08006a8c  08006a8c  00016a8c  2**2
+  2 .rodata       000002d0  08006a8c  08006a8c  00016a8c  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  3 .ARM          00000008  08006d54  08006d54  00016d54  2**2
+  3 .ARM          00000008  08006d5c  08006d5c  00016d5c  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  4 .init_array   00000004  08006d5c  08006d5c  00016d5c  2**2
+  4 .init_array   00000004  08006d64  08006d64  00016d64  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  5 .fini_array   00000004  08006d60  08006d60  00016d60  2**2
+  5 .fini_array   00000004  08006d68  08006d68  00016d68  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  6 .data         000001fc  20000000  08006d64  00020000  2**2
+  6 .data         000001fc  20000000  08006d6c  00020000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  7 .bss          00004430  200001fc  08006f60  000201fc  2**2
+  7 .bss          00004430  200001fc  08006f68  000201fc  2**2
                   ALLOC
-  8 ._user_heap_stack 00006000  2000462c  08006f60  0002462c  2**0
+  8 ._user_heap_stack 00006000  2000462c  08006f68  0002462c  2**0
                   ALLOC
   9 .ARM.attributes 00000030  00000000  00000000  000201fc  2**0
                   CONTENTS, READONLY
@@ -3700,7 +3700,7 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange)
 }
  8001962:	4770      	bx	lr
  8001964:	40021000 	.word	0x40021000
- 8001968:	08006bc0 	.word	0x08006bc0
+ 8001968:	08006bc8 	.word	0x08006bc8
  800196c:	007a1200 	.word	0x007a1200
  8001970:	00f42400 	.word	0x00f42400
 
@@ -4050,7 +4050,7 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange)
  8001c18:	d9f5      	bls.n	8001c06 <HAL_RCC_OscConfig+0x292>
  8001c1a:	e748      	b.n	8001aae <HAL_RCC_OscConfig+0x13a>
  8001c1c:	40021000 	.word	0x40021000
- 8001c20:	08006ba8 	.word	0x08006ba8
+ 8001c20:	08006bb0 	.word	0x08006bb0
  8001c24:	20000028 	.word	0x20000028
     if(HAL_IS_BIT_CLR(RCC->APB1ENR1, RCC_APB1ENR1_PWREN))
  8001c28:	6da3      	ldr	r3, [r4, #88]	; 0x58
@@ -4397,7 +4397,7 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange)
  8001ed2:	e793      	b.n	8001dfc <HAL_RCC_ClockConfig+0x3c>
  8001ed4:	40022000 	.word	0x40022000
  8001ed8:	40021000 	.word	0x40021000
- 8001edc:	08006ba8 	.word	0x08006ba8
+ 8001edc:	08006bb0 	.word	0x08006bb0
  8001ee0:	20000028 	.word	0x20000028
 
 08001ee4 <HAL_RCC_GetPCLK1Freq>:
@@ -4414,7 +4414,7 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange)
  8001ef8:	40d8      	lsrs	r0, r3
  8001efa:	4770      	bx	lr
  8001efc:	40021000 	.word	0x40021000
- 8001f00:	08006bb8 	.word	0x08006bb8
+ 8001f00:	08006bc0 	.word	0x08006bc0
  8001f04:	20000028 	.word	0x20000028
 
 08001f08 <HAL_RCC_GetPCLK2Freq>:
@@ -4431,7 +4431,7 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t msirange)
  8001f1c:	40d8      	lsrs	r0, r3
  8001f1e:	4770      	bx	lr
  8001f20:	40021000 	.word	0x40021000
- 8001f24:	08006bb8 	.word	0x08006bb8
+ 8001f24:	08006bc0 	.word	0x08006bc0
  8001f28:	20000028 	.word	0x20000028
 
 08001f2c <RCCEx_PLLSAI1_Config>:
@@ -11982,7 +11982,7 @@ void MX_FATFS_Init(void)
  8004cf8:	7018      	strb	r0, [r3, #0]
  8004cfa:	bd08      	pop	{r3, pc}
  8004cfc:	200002c1 	.word	0x200002c1
- 8004d00:	08006b94 	.word	0x08006b94
+ 8004d00:	08006b9c 	.word	0x08006b9c
  8004d04:	200002c0 	.word	0x200002c0
 
 08004d08 <get_fattime>:
@@ -13447,11 +13447,11 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
  800575a:	4602      	mov	r2, r0
  800575c:	483c      	ldr	r0, [pc, #240]	; (8005850 <SD_SENSORS+0x288>)
  800575e:	f7ff f8b5 	bl	80048cc <f_write>
-		  f_write(&myFILE, "\t", 1, &testByte);
+		  f_write(&myFILE, "\tm\t", 3, &testByte);
  8005762:	4b3c      	ldr	r3, [pc, #240]	; (8005854 <SD_SENSORS+0x28c>)
  8005764:	4946      	ldr	r1, [pc, #280]	; (8005880 <SD_SENSORS+0x2b8>)
  8005766:	483a      	ldr	r0, [pc, #232]	; (8005850 <SD_SENSORS+0x288>)
- 8005768:	2201      	movs	r2, #1
+ 8005768:	2203      	movs	r2, #3
  800576a:	f7ff f8af 	bl	80048cc <f_write>
 		  f_write(&myFILE, "Lat:\t", 5, &testByte);
  800576e:	4b39      	ldr	r3, [pc, #228]	; (8005854 <SD_SENSORS+0x28c>)
@@ -13467,11 +13467,11 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
  8005784:	4602      	mov	r2, r0
  8005786:	4832      	ldr	r0, [pc, #200]	; (8005850 <SD_SENSORS+0x288>)
  8005788:	f7ff f8a0 	bl	80048cc <f_write>
-		  f_write(&myFILE, "\t", 1, &testByte);
+		  f_write(&myFILE, "\tm\t", 3, &testByte);
  800578c:	4b31      	ldr	r3, [pc, #196]	; (8005854 <SD_SENSORS+0x28c>)
  800578e:	493c      	ldr	r1, [pc, #240]	; (8005880 <SD_SENSORS+0x2b8>)
  8005790:	482f      	ldr	r0, [pc, #188]	; (8005850 <SD_SENSORS+0x288>)
- 8005792:	2201      	movs	r2, #1
+ 8005792:	2203      	movs	r2, #3
  8005794:	f7ff f89a 	bl	80048cc <f_write>
 		  f_write(&myFILE, "Alt:\t", 5, &testByte);
  8005798:	4b2e      	ldr	r3, [pc, #184]	; (8005854 <SD_SENSORS+0x28c>)
@@ -13487,11 +13487,11 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
  80057ae:	4602      	mov	r2, r0
  80057b0:	4827      	ldr	r0, [pc, #156]	; (8005850 <SD_SENSORS+0x288>)
  80057b2:	f7ff f88b 	bl	80048cc <f_write>
-		  f_write(&myFILE, "\t", 1, &testByte);
+		  f_write(&myFILE, "\tm\t", 3, &testByte);
  80057b6:	4b27      	ldr	r3, [pc, #156]	; (8005854 <SD_SENSORS+0x28c>)
  80057b8:	4931      	ldr	r1, [pc, #196]	; (8005880 <SD_SENSORS+0x2b8>)
  80057ba:	4825      	ldr	r0, [pc, #148]	; (8005850 <SD_SENSORS+0x288>)
- 80057bc:	2201      	movs	r2, #1
+ 80057bc:	2203      	movs	r2, #3
  80057be:	f7ff f885 	bl	80048cc <f_write>
 
 		  f_write(&myFILE, "G:\t", 3, &testByte);
@@ -13508,11 +13508,11 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
  80057d8:	4602      	mov	r2, r0
  80057da:	481d      	ldr	r0, [pc, #116]	; (8005850 <SD_SENSORS+0x288>)
  80057dc:	f7ff f876 	bl	80048cc <f_write>
-		  f_write(&myFILE, "\r\n", 2, &testByte);
+		  f_write(&myFILE, "\tppm\r\n", 6, &testByte);
  80057e0:	492b      	ldr	r1, [pc, #172]	; (8005890 <SD_SENSORS+0x2c8>)
  80057e2:	4b1c      	ldr	r3, [pc, #112]	; (8005854 <SD_SENSORS+0x28c>)
  80057e4:	481a      	ldr	r0, [pc, #104]	; (8005850 <SD_SENSORS+0x288>)
- 80057e6:	2202      	movs	r2, #2
+ 80057e6:	2206      	movs	r2, #6
  80057e8:	f7ff f870 	bl	80048cc <f_write>
 
 		  f_close(&myFILE);
@@ -13563,11 +13563,11 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
  8005874:	08006b6b 	.word	0x08006b6b
  8005878:	08006b6f 	.word	0x08006b6f
  800587c:	08006b78 	.word	0x08006b78
- 8005880:	08006b69 	.word	0x08006b69
- 8005884:	08006b7e 	.word	0x08006b7e
- 8005888:	08006b84 	.word	0x08006b84
- 800588c:	08006b8a 	.word	0x08006b8a
- 8005890:	08006b8e 	.word	0x08006b8e
+ 8005880:	08006b7e 	.word	0x08006b7e
+ 8005884:	08006b82 	.word	0x08006b82
+ 8005888:	08006b88 	.word	0x08006b88
+ 800588c:	08006b8e 	.word	0x08006b8e
+ 8005890:	08006b92 	.word	0x08006b92
 
 08005894 <CONV_CHAR32>:
 
@@ -13646,7 +13646,7 @@ return 0;
  80058e2:	f000 fb9f 	bl	8006024 <strcat>
  80058e6:	e7ee      	b.n	80058c6 <lora_test+0x22>
  80058e8:	08006a98 	.word	0x08006a98
- 80058ec:	08006b91 	.word	0x08006b91
+ 80058ec:	08006b99 	.word	0x08006b99
 
 080058f0 <GPS_GETPOS>:
 
@@ -14156,9 +14156,9 @@ void SystemClock_Config(void)
  8005bae:	f7ff fbc9 	bl	8005344 <get_PRES>
 	  get_MAGN();				//CHAMP MAGNETIQUE	(mgauss)
  8005bb2:	f7ff fc59 	bl	8005468 <get_MAGN>
-	  get_GAS();				//GAS				()
+	  get_GAS();				//GAS				(ppm)
  8005bb6:	f7ff fcfb 	bl	80055b0 <get_GAS>
-	  GPS_GETPOS(GPS_COORD);	//POSITION GPS		()
+	  GPS_GETPOS(GPS_COORD);	//POSITION GPS		(m)
  8005bba:	a801      	add	r0, sp, #4
  8005bbc:	f7ff fe98 	bl	80058f0 <GPS_GETPOS>
 	  SD_SENSORS(GPS_COORD[0],GPS_COORD[1],GPS_COORD[2]);
@@ -14970,7 +14970,7 @@ LoopForever:
   ldr   sp, =_estack    /* Atollic update: set stack pointer */
  8005f2c:	20018000 	.word	0x20018000
 	ldr	r3, =_sidata
- 8005f30:	08006d64 	.word	0x08006d64
+ 8005f30:	08006d6c 	.word	0x08006d6c
 	ldr	r0, =_sdata
  8005f34:	20000000 	.word	0x20000000
 	ldr	r3, =_edata
@@ -15021,10 +15021,10 @@ Infinite_Loop:
  8005f82:	4798      	blx	r3
  8005f84:	3501      	adds	r5, #1
  8005f86:	e7f2      	b.n	8005f6e <__libc_init_array+0x1e>
- 8005f88:	08006d5c 	.word	0x08006d5c
- 8005f8c:	08006d5c 	.word	0x08006d5c
- 8005f90:	08006d5c 	.word	0x08006d5c
- 8005f94:	08006d60 	.word	0x08006d60
+ 8005f88:	08006d64 	.word	0x08006d64
+ 8005f8c:	08006d64 	.word	0x08006d64
+ 8005f90:	08006d64 	.word	0x08006d64
+ 8005f94:	08006d68 	.word	0x08006d68
 
 08005f98 <__itoa>:
  8005f98:	1e93      	subs	r3, r2, #2
@@ -15315,7 +15315,7 @@ Infinite_Loop:
  800621a:	4621      	mov	r1, r4
  800621c:	e7e2      	b.n	80061e4 <__utoa+0x40>
  800621e:	bf00      	nop
- 8006220:	08006bf0 	.word	0x08006bf0
+ 8006220:	08006bf8 	.word	0x08006bf8
 
 08006224 <__locale_ctype_ptr_l>:
  8006224:	f8d0 00ec 	ldr.w	r0, [r0, #236]	; 0xec
@@ -15618,9 +15618,9 @@ Infinite_Loop:
  80064d0:	4640      	mov	r0, r8
  80064d2:	f000 f881 	bl	80065d8 <_printf_i>
  80064d6:	e7ea      	b.n	80064ae <_svfiprintf_r+0x1aa>
- 80064d8:	08006c1f 	.word	0x08006c1f
- 80064dc:	08006c25 	.word	0x08006c25
- 80064e0:	08006c29 	.word	0x08006c29
+ 80064d8:	08006c27 	.word	0x08006c27
+ 80064dc:	08006c2d 	.word	0x08006c2d
+ 80064e0:	08006c31 	.word	0x08006c31
  80064e4:	00000000 	.word	0x00000000
  80064e8:	0800624f 	.word	0x0800624f
 
@@ -15959,8 +15959,8 @@ Infinite_Loop:
  8006806:	f884 3042 	strb.w	r3, [r4, #66]	; 0x42
  800680a:	f104 0542 	add.w	r5, r4, #66	; 0x42
  800680e:	e765      	b.n	80066dc <_printf_i+0x104>
- 8006810:	08006c41 	.word	0x08006c41
- 8006814:	08006c30 	.word	0x08006c30
+ 8006810:	08006c49 	.word	0x08006c49
+ 8006814:	08006c38 	.word	0x08006c38
 
 08006818 <__ascii_wctomb>:
  8006818:	b149      	cbz	r1, 800682e <__ascii_wctomb+0x16>

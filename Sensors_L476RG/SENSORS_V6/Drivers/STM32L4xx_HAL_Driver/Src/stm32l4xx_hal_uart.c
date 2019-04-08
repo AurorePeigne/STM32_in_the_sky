@@ -3213,7 +3213,7 @@ HAL_StatusTypeDef UART_CheckIdleState(UART_HandleTypeDef *huart)
 HAL_StatusTypeDef UART_WaitOnFlagUntilTimeout(UART_HandleTypeDef *huart, uint32_t Flag, FlagStatus Status, uint32_t Tickstart, uint32_t Timeout)
 {
   /* Wait until flag is set */
-  while ((__HAL_UART_GET_FLAG(huart, Flag) ? SET : RESET) == Status)
+	while ((__HAL_UART_GET_FLAG(huart, Flag) ? SET : RESET) == Status)
   {
     /* Check for the Timeout */
     if (Timeout != HAL_MAX_DELAY)
