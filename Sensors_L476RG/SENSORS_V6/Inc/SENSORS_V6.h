@@ -9,6 +9,7 @@
 #define SENSORS_V6_H_
 
 #define I2C_TIMEOUT 1000
+#define ADCCONVERTEDVALUES_BUFFER_SIZE ((uint32_t) 2)
 
 #include "string.h"
 
@@ -149,9 +150,13 @@ uint16_t magnZ16[1];
 uint16_t magn16[1];
 
 
-//GAS//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//ADC//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-uint16_t gas16[1];
+/* Variable containing ADC conversions results */
+__IO uint16_t   aADCxConvertedValues[ADCCONVERTEDVALUES_BUFFER_SIZE];
+
+uint16_t gas16;
+uint16_t bat16;
 
 //SD///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -170,6 +175,7 @@ char lat_char[20];
 char alt_char[20];
 
 char gas_char[20];
+char bat_char[20];
 
 
 
@@ -210,12 +216,13 @@ void MAGN_init(void)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void GAS_Init()
+void DMA_init()
 {
-	if (HAL_ADC_Start_IT(&hadc1)!= HAL_OK)
-		{
-			Error_Handler();
-		}
+	if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)aADCxConvertedValues, ADCCONVERTEDVALUES_BUFFER_SIZE) != HAL_OK)
+	{
+		/* Start Error */
+		Error_Handler();
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -331,9 +338,16 @@ void get_MAGN(void)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void get_GAS(void)
+void get_ADC(void)
 {
-	gas16[0] = HAL_ADC_GetValue(&hadc1);
+	if (HAL_ADC_Start(&hadc1)!= HAL_OK)
+	{
+		Error_Handler();
+	}
+
+	HAL_Delay(1);
+	gas16 = aADCxConvertedValues[0];
+	bat16 = aADCxConvertedValues[1];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -352,7 +366,9 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
 
 	itoa(magn16[0],magn_char,10);
 
-	itoa(gas16[0],gas_char, 10);
+	uint16_t bat_volt16 = (uint16_t) (bat16*100/4700);
+	itoa(gas16,gas_char, 10);
+	itoa(bat_volt16,bat_char, 10);
 
 	uint32_t alti32 = alt32/100;
 	itoa(lon32,lon_char,10);
@@ -404,7 +420,11 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
 
 		  f_write(&myFILE, "G:\t", 3, &testByte);
 		  f_write(&myFILE, gas_char, strlen(gas_char), &testByte);
-		  f_write(&myFILE, "\tppm\r\n", 6, &testByte);
+		  f_write(&myFILE, "\tppm\t", 5, &testByte);
+
+		  f_write(&myFILE, "Bat:\t", 5, &testByte);
+		  f_write(&myFILE, bat_char, strlen(bat_char), &testByte);
+		  f_write(&myFILE, "\t%\r\n", 4, &testByte);
 
 		  f_close(&myFILE);
 

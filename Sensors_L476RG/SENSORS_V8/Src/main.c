@@ -60,7 +60,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define ADCCONVERTEDVALUES_BUFFER_SIZE ((uint32_t) 2) /* Size of array containing ADC converted values: set to ADC sequencer number of ranks converted, to have a rank in each address */
+#define ADCCONVERTEDVALUES_BUFFER_SIZE ((uint32_t) 2)
+/* Size of array containing ADC converted values: set to ADC sequencer number of ranks converted, to have a rank in each address */
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/

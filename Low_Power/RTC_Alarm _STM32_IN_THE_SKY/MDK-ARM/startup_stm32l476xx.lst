@@ -711,17 +711,17 @@ ARM Macro Assembler    Page 11
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=stm32l476rg_nucleo\startup_stm32l476xx.d -ostm32l476rg_nucleo\s
-tartup_stm32l476xx.o -I.\RTE\_STM32L476RG_NUCLEO -IC:\Keil_v5\ARM\PACK\Keil\STM
-32L4xx_DFP\2.1.0\Drivers\CMSIS\Device\ST\STM32L4xx\Include -IC:\Keil_v5\ARM\CMS
+tartup_stm32l476xx.o -I.\RTE\_STM32L476RG_NUCLEO -IC:\Users\pierre.perrin\AppDa
+ta\Local\Arm\Packs\Keil\STM32L4xx_DFP\2.2.0\Drivers\CMSIS\Device\ST\STM32L4xx\I
 
 
 
 ARM Macro Assembler    Page 12 
 
 
-IS\Include --predefine="__EVAL SETA 1" --predefine="__MICROLIB SETA 1" --predef
-ine="__UVISION_VERSION SETA 526" --predefine="STM32L476xx SETA 1" --list=startu
-p_stm32l476xx.lst startup_stm32l476xx.s
+nclude -IC:\Keil_v5\ARM\CMSIS\Include --predefine="__EVAL SETA 1" --predefine="
+__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 527" --predefine="STM32L
+476xx SETA 1" --list=startup_stm32l476xx.lst startup_stm32l476xx.s
 
 
 

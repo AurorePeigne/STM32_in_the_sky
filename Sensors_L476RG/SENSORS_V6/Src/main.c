@@ -51,6 +51,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "dma.h"
 #include "fatfs.h"
 #include "i2c.h"
 #include "sdmmc.h"
@@ -126,6 +127,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART2_UART_Init();
   MX_I2C1_Init();
   MX_SDMMC1_SD_Init();
@@ -134,10 +136,11 @@ int main(void)
   MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
+
   TEMP_HUM_init();
   PRES_init();
   MAGN_init();
-  GAS_Init();
+  DMA_init();
 
 
   uint32_t GPS_COORD[3];
@@ -152,7 +155,7 @@ int main(void)
 	  get_HUM();				//HUMIDITE			(%)
 	  get_PRES();				//PRESSION			(mbar ou hPa)
 	  get_MAGN();				//CHAMP MAGNETIQUE	(mgauss)
-	  get_GAS();				//GAS				(ppm)
+	  get_ADC();				//GAS				(ppm)
 
 	  GPS_GETPOS(GPS_COORD);	//POSITION GPS		(m)
 
