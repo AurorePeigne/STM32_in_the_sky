@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
+
 #include "main.h"
 #include "i2c.h"
 #include "usart.h"
@@ -78,8 +79,7 @@ int main(void)
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-	HAL_Init();
-
+  HAL_Init();
 
   /* USER CODE BEGIN Init */
 
@@ -126,69 +126,69 @@ int main(void)
 
 
 
-  //*****************************INIT LORA****************************//
+  //*****************************INIT LORA****************************/
 
-//  LORA_AT_SET("AT+ATZ");
-//  HAL_UART_DeInit(&hlpuart1);
-//  HAL_UART_Init(&hlpuart1);
-//
-//
-//
-//  LORA_AT_SET("AT+APPEUI=70b3d57ed0014d9e");//APPEUI=900dcafe00000001");//last = 1
-//  HAL_UART_DeInit(&hlpuart1);
-//  HAL_UART_Init(&hlpuart1);
-//
-//  LORA_AT_SET("AT+ASK=9a2e35347a2da3c76f583e31db2fadab");
-//   HAL_UART_DeInit(&hlpuart1);
-//   HAL_UART_Init(&hlpuart1);
-//
-//
-//
-//   LORA_AT_SET("AT+NSK=1a47ad204af7bba26a11acd46a43d5c7");
-//    HAL_UART_DeInit(&hlpuart1);
-//    HAL_UART_Init(&hlpuart1);
-//
-//
-//
-//
-//
-//
-//   LORA_AT_SET("AT+DC=0");
-//   HAL_UART_DeInit(&hlpuart1);
-//   HAL_UART_Init(&hlpuart1);
-//
-//
-//
-//
-//   LORA_AT_SET("AT+ADDR=26011a95");
-//   HAL_UART_DeInit(&hlpuart1);
-//   HAL_UART_Init(&hlpuart1);
-//
-//
-//
-//
-//  LORA_AT_JOIN_SET(0);
-//  HAL_UART_DeInit(&hlpuart1);
-//  HAL_UART_Init(&hlpuart1);
+  LORA_AT_SET("AT+ATZ");
+  HAL_UART_DeInit(&hlpuart1);
+  HAL_UART_Init(&hlpuart1);
 
-  //*****************************END INIT LORA****************************//
+
+
+  LORA_AT_SET("AT+APPEUI=70b3d57ed0014d9e");//APPEUI=900dcafe00000001");//last = 1
+  HAL_UART_DeInit(&hlpuart1);
+  HAL_UART_Init(&hlpuart1);
+
+  LORA_AT_SET("AT+ASK=9a2e35347a2da3c76f583e31db2fadab");
+   HAL_UART_DeInit(&hlpuart1);
+   HAL_UART_Init(&hlpuart1);
+
+
+
+   LORA_AT_SET("AT+NSK=1a47ad204af7bba26a11acd46a43d5c7");
+    HAL_UART_DeInit(&hlpuart1);
+    HAL_UART_Init(&hlpuart1);
+
+
+
+
+
+
+   LORA_AT_SET("AT+DC=0");
+   HAL_UART_DeInit(&hlpuart1);
+   HAL_UART_Init(&hlpuart1);
+
+
+
+
+   LORA_AT_SET("AT+ADDR=26011a95");
+   HAL_UART_DeInit(&hlpuart1);
+   HAL_UART_Init(&hlpuart1);
+
+
+
+
+  LORA_AT_JOIN_SET(0);
+  HAL_UART_DeInit(&hlpuart1);
+  HAL_UART_Init(&hlpuart1);
+
+  //*****************************END INIT LORA****************************/
 
 
   //*****************************GET SENSORS DATA****************************//
 
-//  get_TEMP();
-//  get_HUM();
-//  get_PRES();
+  get_TEMP();
+  get_HUM();
+  get_PRES();
 
 
-  //*****************************END GET SENSORS DATA****************************//
+  //*****************************END GET SENSORS DATA****************************/
 
 
   //*****************************GET GPS DATA****************************//
 
-  MX_USART1_UART_Init();
+ // MX_USART1_UART_Init();
   uint32_t GPS_COORD[3];
-  GPS_GETPOS(GPS_COORD);
+  //GPS_GETPOS(GPS_COORD);
 
 
   //*****************************END GET GPS DATA****************************//
@@ -200,7 +200,7 @@ int main(void)
   char buff_lon[20];
   char buff_lat[20];
   char buff_alt[20];
-  LORA_AT_SEND(CONV_CHAR32(GPS_COORD[0],buff_lon),CONV_CHAR32(GPS_COORD[1],buff_lat),CONV_CHAR32(GPS_COORD[2],buff_alt));
+  //LORA_AT_SEND(CONV_CHAR32(GPS_COORD[0],buff_lon),CONV_CHAR32(GPS_COORD[1],buff_lat),CONV_CHAR32(GPS_COORD[2],buff_alt));
 
 
   //*****************************END SEND THROUGH LORA****************************//
@@ -208,88 +208,23 @@ int main(void)
   HAL_UART_DeInit(&hlpuart1);
   HAL_UART_Init(&hlpuart1);
 
-    /* USER CODE END 2 */
+  /* USER CODE END 2 */
 
-    /* Infinite loop */
-    /* USER CODE BEGIN WHILE */
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
     while (1)
     {
-      /* USER CODE END WHILE */
+    /* USER CODE END WHILE */
+    	HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    	GPS_GETPOS(GPS_COORD);
+    	LORA_AT_SEND(CONV_CHAR32(GPS_COORD[0],buff_lon),CONV_CHAR32(GPS_COORD[1],buff_lat),CONV_CHAR32(GPS_COORD[2],buff_alt));
 
- // 	  LORA_AT_SEND(CONV_CHAR32(GPS_COORD[0],buff_lon),CONV_CHAR32(GPS_COORD[1],buff_lat),CONV_CHAR32(GPS_COORD[2],buff_alt));
+          	HAL_Delay(7000);
 
-
-  	  HAL_UART_DeInit(&hlpuart1);
-  	  HAL_UART_Init(&hlpuart1);
-  		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-      	HAL_Delay(100);
-
-
-
-
-      /* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
     }
-    /* USER CODE END 3 */
-  }
-
-
-
-
-
-
-
-
-
-
-  //***********************************main test_pin_connection*******************
-//
-//char buff[50];
-//uint32_t TEST[3];
-//uint8_t k=0;
-//char buff1[50];
-//char buff2[50];
-//char buff3[50];
-//  /* USER CODE END 2 */
-//
-//  /* Infinite loop */
-//  /* USER CODE BEGIN WHILE */
-//char* toast={"123"};
-//uint8_t siz=strlen(toast);
-//    /* USER CODE END WHILE */
-//
-////lora_test(toast);
-//
-//GPS_TEST(TEST);
-//	 MX_USART1_UART_Init();
-//	// CONV_CHAR32(TEST[0],buff1);
-//	// CONV_CHAR32(TEST[1],buff2);
-//	 sprintf(buff,"%s%s%s",CONV_CHAR32(TEST[0],buff1),CONV_CHAR32(TEST[1],buff2),CONV_CHAR32(TEST[2],buff3));
-//    /* USER CODE BEGIN 3 */
-//while(1){
-//  		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
-//  		HAL_Delay(100);
-//  	}
-//  /* USER CODE END 3 */
-//}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  /* USER CODE END 3 */
+}
 
 /**
   * @brief System Clock Configuration
