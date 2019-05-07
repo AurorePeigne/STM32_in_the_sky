@@ -103,10 +103,18 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-	erreur = EraseFlash();
-//	erreur_write= WriteFlash(FLASH_USER_START_ADDR, DATA_64, FLASH_USER_END_ADDR);
-//	erreur_data=ReadFlash(FLASH_USER_START_ADDR, DATA_32);
-	erreur_data = algo_flash_test(FLASH_USER_START_ADDR, FLASH_USER_END_ADDR, DATA_32, DATA_64);
+//	erreur = EraseFlash();
+////	erreur_write= WriteFlash(FLASH_USER_START_ADDR, DATA_64, FLASH_USER_END_ADDR);
+////	erreur_data=ReadFlash(FLASH_USER_START_ADDR, DATA_32);
+//	erreur_data = algo_flash_test(FLASH_USER_START_ADDR, FLASH_USER_END_ADDR, DATA_32, DATA_64);
+
+
+  erreur = EraseFlash();
+    	erreur_write= WriteFlash(FLASH_USER_START_ADDR, DATA_64, FLASH_USER_END_ADDR);
+    //	erreur_data=ReadFlash(FLASH_USER_START_ADDR, DATA_32);
+    	uint32_t *p=ADDR_FLASH_PAGE_16;
+    	erreur_data = algo_flash_test(FLASH_USER_START_ADDR, FLASH_USER_END_ADDR, DATA_32, DATA_64);
+
 
   /* USER CODE END 2 */
 
@@ -114,7 +122,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-			i++;
+//			i++;
+
+		HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+	    HAL_Delay(100);
+
+
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
