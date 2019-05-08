@@ -12,39 +12,16 @@
 #include "usart.h"
 #include "gpio.h"
 #include "string.h"
-//#include "I2C_stack.h"
-
-
-/*************************************************************************************
- * ***********************************************************************************
- * ***************************A LIRE**************************************************
- * ***********************************************************************************
- * ***********************************************************************************
- *
- * Je commente bien qu'une set et une get, les autres du même type ont exactement le même principe
- * Je commente les premières de chaque type donc AK_SET et AK_GET
- *
- * Si tu débug cher ami, ne place pas de breakpoint entre les comm uart, je te le rapellerai dans une des fonctions !
- *
- * Il est conseillé d'avir la doc des AT command avec soi ! C'est plus pratique pour la suite
- */
 
 
 
 
 
-/* ************************************************************************
- * ************************************************************************
- * 						FONCTIONS LPUART END TRANSFER
- * ************************************************************************
- * ************************************************************************
- */
-
-#define LORAWAN_APP_DATA_BUFF_SIZE                           64
 
 
 
-/* Très important !!!! Je convertis les valeurs renvoyées par les capteurs en chaine d'hexa pour les envoyer sous ce format */
+/* Convert a uint32 into a uint8 array in hexadecimal format */
+
 
 uint8_t * CONV_CHAR32(uint32_t val, uint8_t * tab){
 
@@ -95,26 +72,14 @@ static void UART_EndRxTransfer(UART_HandleTypeDef *huart)
 }
 
 
-int lora_test(char* lon){
-
-
-
-	char CapTemp[5]={"0288"},longi[8]={"\0"},Temp[5]={"\0"};
-
-
-	uint8_t siz=strlen(lon);
-						for(uint8_t i=0;i<6-siz;i++){
-							strcat(longi,"0");
-						}
-strcat(longi,lon);
-
-return 0;
-
-}
-
+/* Get GPS position by extracting the GPGGA frame, with a timeout condition to exit the function if it cannot reach a good value */
 
 uint32_t* GPS_GETPOS(uint32_t* tab){
 
+int GPS_TIMEOUT=10000;
+int cpt_timeout=0;
+
+/* Buffers to catch the GPGGA frame */
 
 uint8_t RX_BUFF_SIZE=200;
 uint8_t in_get1[RX_BUFF_SIZE];
@@ -124,6 +89,8 @@ uint8_t in_get4[RX_BUFF_SIZE];
 uint8_t in_get5[RX_BUFF_SIZE];
 uint8_t in_get6[RX_BUFF_SIZE];
 
+/* pointers to catch the gps frame and its end */
+
 char * p=0x0;
 char *q=0x0;
 uint32_t taille=100;
@@ -132,7 +99,7 @@ uint8_t DATA_VALIDE[2];
 
 
 
-char ALT[15];
+
 uint8_t k=0;
 
 	do	{
@@ -191,20 +158,32 @@ HAL_StatusTypeDef status = 	HAL_UART_Receive(&huart1, (uint8_t *)in_get1, RX_BUF
 
 
 							 MX_USART1_UART_Init();
-	//		}
+
 
 							 q=strstr(p,"\r\n");
 taille=q-p;
-
-}while((q-p>100)||(q-p==0)||(q==0x0));
-
-
+cpt_timeout++;
+}while(((q-p>100)||(q-p==0)||(q==0x0)||(q-p<50))&&(cpt_timeout<GPS_TIMEOUT));
 
 
+	/* if timeout has been reached, get out of the function */
+
+
+	if (cpt_timeout>=GPS_TIMEOUT){
+		tab[0]=0;
+		tab[1]=0;
+		tab[2]=0;
+		return tab;
+	}
 
 
 
-//*****************************************  TEST CONVERSION DMS LAT->DD****************
+
+
+
+//******************* Conversion from minutes and second degrees to decimal degrees *********************
+
+	/* Latitude acquisition and conversion */
 
 HAL_Delay(10);
 p=strchr(p,',');
@@ -249,8 +228,7 @@ LAT=nb_LAT_H*10000+(uint32_t)((nb_LAT_M*10000)/60)+(uint32_t)((nb_LAT_L*10000)/3
 
 
 
-/*********************************************************************/
-//*****************************************  TEST CONVERSION DMS LON->DD****************
+/* Longitude acquisition and conversion */
 
 HAL_Delay(10);
 p=strchr(p,',');
@@ -296,11 +274,7 @@ LON=nb_LON_H*10000+(uint32_t)((nb_LON_M*10000)/60)+(uint32_t)((nb_LON_L*10000)/3
 
 HAL_Delay(10);
 
-
-
-
-
-
+/* Check if the data is valid, 0 : not valid, 1 valid with GPS fix, 2 valid with DGPS fix */
 
 p=strchr(p,',');
 p++;
@@ -316,7 +290,9 @@ p++;
 p=strchr(p,',');
 p++;
 
+/* Get the altitude, if the altitude is under 0 we get the absolute value of altitude */
 
+char ALT[15];
 while (*p!='.'){
 if (*p=='-'){
 	p++;
@@ -329,63 +305,21 @@ ALT[k]='\0';
 HAL_Delay(10);
 
 
-//*****************************************************************************/
-/*
-		// Longitude
-		uint8_t k=0;
-		for (uint8_t j=0;j<7;j++){
-			if(p[18+j]!='.'){
-				LONG[k]=p[18+j];
-				k++;
-			}
-		}
-
-LONG[7]='\0';
 
 
 
-
-
-
-		//Latitude
-		k=0;
-			for (uint8_t j=0;j<8;j++){
-				if(p[31+j]!='.'){
-					LAT[k]=p[31+j];
-					k++;
-				}
-			}
-
-			LAT[7]='\0';
-
-
-
-
-
-
-			//Altitude
-			k=0;
-
-				while(p[54+k]!='.'){
-					ALT[k]=p[54+k];
-					k++;
-				}
-ALT[k]='\0';
-
-*/
-
-
-
-
-tab[0]=/*atoi(LAT);*/LAT;
-tab[1]=/*atoi(LONG);*/LON;
+tab[0]=LAT;
+tab[1]=LON;
 tab[2]=atoi(ALT)*100;
+
+
+
+
 
 p=0x0;
 return tab;
-    //	HAL_StatusTypeDef status = HAL_UART_Receive(&hlpuart1, buffer,20,15000);
-}
 
+}
 
 
 
