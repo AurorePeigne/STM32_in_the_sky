@@ -203,13 +203,13 @@ HAL_Delay(10);
 //skip=*ptr;
 
   //*****************************INIT LORA****************************//
-if (skip!=1){
-	 HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-
-	skip_temp++;
-	skip=skip_temp;
-	 EraseFlash(ADDR_FLASH_PAGE_17,ADDR_FLASH_PAGE_18);
-	WriteFlash(ADDR_FLASH_PAGE_17, skip, ADDR_FLASH_PAGE_18);
+//if (skip!=1){
+//	 HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+//
+//	skip_temp++;
+//	skip=skip_temp;
+//	 EraseFlash(ADDR_FLASH_PAGE_17,ADDR_FLASH_PAGE_18);
+//	WriteFlash(ADDR_FLASH_PAGE_17, skip, ADDR_FLASH_PAGE_18);
 
 /*
 
@@ -278,7 +278,7 @@ if (skip!=1){
   HAL_UART_Init(&hlpuart1);
 
 
-}
+//}
 
 //LORA_AT_SET("AT+EUI");
 //HAL_UART_DeInit(&hlpuart1);
