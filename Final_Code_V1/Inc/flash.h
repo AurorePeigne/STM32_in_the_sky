@@ -4,8 +4,8 @@
 
 /* Private function prototypes -----------------------------------------------*/
 
-void InitFlash(void);
-uint64_t EraseFlash(void);
+void InitFlash(uint32_t Addres_start, uint32_t Addres_end);
+uint64_t EraseFlash(uint32_t Addres_start, uint32_t Addres_end);
 uint32_t WriteFlash(uint32_t Address, uint64_t data, uint32_t Address_end);
 uint32_t ReadFlash( uint32_t	Address, uint32_t  data_verif);
 uint32_t algo_flash_test(uint32_t	Address, uint32_t Address_end, uint32_t  data_verif, uint64_t data);
@@ -528,5 +528,5 @@ static uint32_t GetBank(uint32_t Address);
 #define ADDR_FLASH_PAGE_510   ((uint32_t)0x080ff000) /* Base @ of Page 510, 2 Kbytes */
 #define ADDR_FLASH_PAGE_511   ((uint32_t)0x080ff800) /* Base @ of Page 511, 2 Kbytes */
 
-#define FLASH_USER_START_ADDR   ADDR_FLASH_PAGE_16   /* Start @ of user Flash area */
+#define FLASH_USER_START_ADDR   ADDR_FLASH_PAGE_20   /* Start @ of user Flash area */
 #define FLASH_USER_END_ADDR     ADDR_FLASH_PAGE_255 + FLASH_PAGE_SIZE - 1   /* End @ of user Flash area */

@@ -8,7 +8,7 @@
 #ifndef SENSORS_V6_H_
 #define SENSORS_V6_H_
 
-#define I2C_TIMEOUT 1000	//timeout of I2C functions
+#define I2C_TIMEOUT 1000
 #define ADCCONVERTEDVALUES_BUFFER_SIZE ((uint32_t) 2)
 
 #include "string.h"
@@ -16,7 +16,10 @@
 I2C_HandleTypeDef hi2c1;
 ADC_HandleTypeDef hadc1;
 
-//TEMPERATURE VARIABLES/////////////////////////////////////////////////////////////////////////////////////////////////////
+//TEMPERATURE/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+//TEMPERATURE/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 uint8_t addr_T0_degC_x8[1]={0x32};
 uint8_t addr_T1_degC_x8[1]={0x33};
@@ -24,8 +27,8 @@ uint8_t T0_degC_x8[1];
 uint8_t T1_degC_x8[1];
 uint16_t T0_degC_DIV8[1];
 uint16_t T1_degC_DIV8[1];
-uint16_t T0_degC[1];
-uint16_t T1_degC[1];
+int16_t T0_degC[1];
+int16_t T1_degC[1];
 
 uint8_t addr_T0_T1_msb[1]={0x35};
 uint8_t T0_T1_msb[1];
@@ -47,20 +50,20 @@ uint8_t addr_T_OUT_L[1]={0x2A};
 uint8_t T_OUT_H[1];
 uint8_t T_OUT_L[1];
 
-uint16_t T0_OUT[1];
-uint16_t T1_OUT[1];
-uint16_t T_OUT[1];
+int16_t T0_OUT[1];
+int16_t T1_OUT[1];
+int16_t T_OUT[1];
 
 uint8_t addr_CTRL_REG1_TEMP[1]={0x20};
 uint8_t CTRL_REG1_TEMP[1]={0x83};
 
-uint16_t temp16[1];
+int16_t temp16[1];
 
 uint16_t temp16u[1];
 uint16_t temp16d[1];
 
 
-//HUMIDITY VARIABLES////////////////////////////////////////////////////////////////////////////////////////////////////////
+//HUMIDITY////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 uint8_t addr_HUM_H[1]={0x29};
 uint8_t addr_HUM_L[1]={0x28};
@@ -91,7 +94,7 @@ uint16_t H_OUT[1];
 uint16_t hum16[1];
 
 
-//PRESSURE VARIABLES/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//PRESSURE/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 uint8_t addr_PRES_OUT_XL[1]={0x28};
 uint8_t addr_PRES_OUT_L[1]={0x29};
@@ -124,7 +127,7 @@ uint8_t INTERRUPT_CFG[1]={0x30};
 uint32_t pres32[1];
 
 
-//MAGNETO VARIABLES//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//MAGNETO//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 uint8_t addr_CFG_REG_A_M[1]={0x60};
 uint8_t CFG_REG_A_M[1]={0x0C};
@@ -150,7 +153,7 @@ uint16_t magnZ16[1];
 uint16_t magn16[1];
 
 
-//ADC VARIABLES//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//ADC//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /* Variable containing ADC conversions results */
 __IO uint16_t   aADCxConvertedValues[ADCCONVERTEDVALUES_BUFFER_SIZE];
@@ -158,13 +161,11 @@ __IO uint16_t   aADCxConvertedValues[ADCCONVERTEDVALUES_BUFFER_SIZE];
 uint16_t gas16;
 uint16_t bat16;
 
-//SD VARIABLES///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//SD///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 FATFS myFATFS;
 FIL myFILE;
 UINT testByte;
-
-//strings to write on the SD card
 
 char temp_u_char[3];
 char temp_d_char[2];
@@ -176,41 +177,36 @@ char lon_char[20];
 char lat_char[20];
 char alt_char[20];
 
-//char validechar[20];
-
 char gas_char[20];
 char bat_char[20];
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//function to manage the negative values of the different data
 
-uint16_t is_negative(uint16_t valeur)
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+uint16_t est_negatif(uint16_t valeur)
 {
-	if (valeur>=0x8000)	//if the most significant bit is 1
-	{
-		valeur=~valeur+1;	//we take the complement
+	if (valeur>=0x8000){
+		valeur=~valeur+1;
 	}
 	return valeur;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void TEMP_HUM_init(void)
 {
-	//active power-down control
 	HAL_I2C_Mem_Write(&hi2c1,0xBE, addr_CTRL_REG1_TEMP[0], 1, CTRL_REG1_TEMP, 1, I2C_TIMEOUT);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void PRES_init(void)
 {
-	//disable one-shot mode
 	HAL_I2C_Mem_Write(&hi2c1,0xBA, addr_CTRL_REG1_PRES[0], 1, CTRL_REG1_PRES, 1, I2C_TIMEOUT);
+
 	HAL_I2C_Mem_Write(&hi2c1,0xBA, addr_CTRL_REG2_PRES[0], 1, CTRL_REG2_PRES, 1, I2C_TIMEOUT);
 
-	//enable autozero function and reset it
 	HAL_I2C_Mem_Write(&hi2c1,0xBA, addr_INTERRUPT_CFG[0], 1, INTERRUPT_CFG, 1, I2C_TIMEOUT);
 	HAL_Delay(10);
 }
@@ -218,15 +214,13 @@ void PRES_init(void)
 
 void MAGN_init(void)
 {
-	//configure output data rate
 	HAL_I2C_Mem_Write(&hi2c1,0x3C, addr_CFG_REG_A_M[0], 1, CFG_REG_A_M, 1, I2C_TIMEOUT);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void DMA_init()
 {
-	//active DMA to receive several data on the same ADC
 	if (HAL_ADC_Start_DMA(&hadc1, (uint32_t *)aADCxConvertedValues, ADCCONVERTEDVALUES_BUFFER_SIZE) != HAL_OK)
 	{
 		/* Start Error */
@@ -234,11 +228,10 @@ void DMA_init()
 	}
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void get_TEMP(void)
 {
-	//read the temperature data using I2C
 	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_T0_degC_x8[0], 1, T0_degC_x8, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_T1_degC_x8[0], 1, T1_degC_x8, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_T0_T1_msb[0], 1, T0_T1_msb, 1, I2C_TIMEOUT);
@@ -249,19 +242,19 @@ void get_TEMP(void)
 	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_T1_L[0], 1, T1_L, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_T_OUT_H[0], 1, T_OUT_H, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_T_OUT_L[0], 1, T_OUT_L, 1, I2C_TIMEOUT);
-	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_T_OUT_L[0], 1, T_OUT_L, 1, I2C_TIMEOUT);
+//	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_T_OUT_L[0], 1, T_OUT_L, 1, I2C_TIMEOUT);
 
-	//concatenation
+	//CONCATENATION
 	T0_OUT[0]	= (T0_H[0]<<8) + T0_L[0];
 	T1_OUT[0]	= (T1_H[0]<<8) + T1_L[0];
 	T_OUT[0]	= (T_OUT_H[0]<<8) + T_OUT_L[0];
 
-	//negative values management
-	T0_OUT[0] 	= is_negative(T0_OUT[0]);
-	T1_OUT[0]	= is_negative(T1_OUT[0]);
-	T_OUT[0]	= is_negative(T_OUT[0]);
+	//GESTION VALEURS NEGATIVES
+	//T0_OUT[0] 	= est_negatif(T0_OUT[0]);
+//	T1_OUT[0]	= est_negatif(T1_OUT[0]);
+//	T_OUT[0]	= est_negatif(T_OUT[0]);
 
-	//calculation of T0_degC and T1_degC
+	//CALCUL DES T0_degC ET T1_degC FINALES
 	T0_msb[0]		= T0_T1_msb[0] & 0x3;
 	T1_msb[0]		= (T0_T1_msb[0] & 0xC)>>2;
 	T0_degC[0] 		= (T0_msb[0]<<8) + T0_degC_x8[0];
@@ -269,17 +262,15 @@ void get_TEMP(void)
 	T0_degC_DIV8[0]	= T0_degC[0]>>3;
 	T1_degC_DIV8[0]	= T1_degC[0]>>3;
 
-	//final calculation of the temperature
+	//CALCUL DE LA TEMPERATURE
 	temp16[0] = ((int16_t)(T_OUT[0]-T0_OUT[0]))*10*((int16_t)(T1_degC_DIV8[0]-T0_degC_DIV8[0]))/((int16_t)(T1_OUT[0]-T0_OUT[0]))+(int16_t)(T0_degC_DIV8[0])*10;
 
-	//integer part of the temperature
 	temp16u[0] = temp16[0]/10;
-	//decimale part of the temperature
 	temp16d[0] = temp16[0] - temp16u[0]*10;
 
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void get_HUM(void)
 {
@@ -303,11 +294,10 @@ void get_HUM(void)
 	hum16[0] = ((int16_t)(H1_rH[0]-H0_rH[0]))*((int16_t)(H_OUT[0]-H0[0]))/((int16_t)(H1[0]-H0[0]))+(int16_t)(H0_rH[0]);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void get_PRES(void)
 {
-	//read the humidity data using I2C
 	HAL_I2C_Mem_Read(&hi2c1,0xBB, addr_REF_P_XL[0], 1, REF_P_XL, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0xBB, addr_REF_P_L[0], 1, REF_P_L, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0xBB, addr_REF_P_H[0], 1, REF_P_H, 1, I2C_TIMEOUT);
@@ -315,19 +305,19 @@ void get_PRES(void)
 	HAL_I2C_Mem_Read(&hi2c1,0xBB, addr_PRES_OUT_L[0], 1, PRES_OUT_L, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0xBB, addr_PRES_OUT_H[0], 1, PRES_OUT_H, 1, I2C_TIMEOUT);
 
-	//concatenation
+	//CONCATENATION
+
 	PRES_x4096[0]	= (PRES_OUT_H[0]<<16) + (PRES_OUT_L[0]<<8) + PRES_OUT_XL[0];
 	REF_P_x4096[0]	= (REF_P_H[0]<<16) + (REF_P_L[0]<<8) + REF_P_XL[0];
 
-	//pressure calculation
+	//CALCUL DE LA PRESSION
 	pres32[0] = (REF_P_x4096[0])>>12;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void get_MAGN(void)
 {
-	//read the magnetometer data using I2C
 	HAL_I2C_Mem_Read(&hi2c1,0x3D, addr_OUTX_L_REG_M[0], 1, OUTX_L_REG_M, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0x3D, addr_OUTX_H_REG_M[0], 1, OUTX_H_REG_M, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0x3D, addr_OUTY_L_REG_M[0], 1, OUTY_L_REG_M, 1, I2C_TIMEOUT);
@@ -335,22 +325,21 @@ void get_MAGN(void)
 	HAL_I2C_Mem_Read(&hi2c1,0x3D, addr_OUTZ_L_REG_M[0], 1, OUTZ_L_REG_M, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0x3D, addr_OUTZ_H_REG_M[0], 1, OUTZ_H_REG_M, 1, I2C_TIMEOUT);
 
-	//concatenation
+	//CONCATENATION
 	magnX16[0] = (OUTX_H_REG_M[0]<<8) + OUTX_L_REG_M[0];
 	magnY16[0] = (OUTY_H_REG_M[0]<<8) + OUTY_L_REG_M[0];
 	magnZ16[0] = (OUTZ_H_REG_M[0]<<8) + OUTZ_L_REG_M[0];
 
-	//negative values management
-	magnX16[0]	= is_negative(magnX16[0]);
-	magnY16[0]	= is_negative(magnY16[0]);
-	magnZ16[0]	= is_negative(magnZ16[0]);
+	//GESTION VALEURS NEGATIVES
+	magnX16[0]	= est_negatif(magnX16[0]);
+	magnY16[0]	= est_negatif(magnY16[0]);
+	magnZ16[0]	= est_negatif(magnZ16[0]);
 
-	//magnetometer calculation
 	magn16[0]	= ((magnX16[0]^2) + (magnY16[0]^2) + (magnZ16[0]^2))^(1/2);
 
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void get_ADC(void)
 {
@@ -360,44 +349,39 @@ void get_ADC(void)
 	}
 
 	HAL_Delay(1);
-	//get gas ADC value
 	gas16 = aADCxConvertedValues[0];
-	//get battery ADC value
 	bat16 = aADCxConvertedValues[1];
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
 {
-	//conversion of temperature data into strings
+
 	itoa(temp16u[0],temp_u_char,10);
 	itoa(temp16d[0],temp_d_char,10);
 
-	//conversion of the humidity data into a string
 	itoa(hum16[0],hum_char,10);
 
-	//conversion of the pressure data into a string
 	itoa(pres32[0],pres_char,10);
 
-	//conversion of the magnetometer data into a string
 	itoa(magn16[0],magn_char,10);
 
-	//conversion of ADC data into strings
 	uint16_t bat_volt16 = (uint16_t) (bat16*100/4700);
 	itoa(gas16,gas_char, 10);
 	itoa(bat_volt16,bat_char, 10);
 
-	//conversion of GPS data into strings
 	uint32_t alti32 = alt32/100;
 	itoa(lon32,lon_char,10);
 	itoa(lat32,lat_char,10);
 	itoa(alti32,alt_char,10);
-//	itoa(valide,validechar,10);
 
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
 	HAL_Delay(100);
+
+	//CONNECTION TO THE SDCARD
 
 	//if we connect successfully to the SDCard :
 	if(f_mount(&myFATFS, SDPath, 1) == FR_OK)
@@ -405,12 +389,10 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
 		  //we change the state of the LED
 		  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 
-		  //define the file in witch we write the data
 		  char myFileName[] = "RESULT.TXT\0";
-		  //open the file to write in it without deleting what it already contains
 		  f_open(&myFILE, myFileName, FA_WRITE | FA_OPEN_APPEND);
 
-		  //write in the file
+
 		  f_write(&myFILE, "T:\t", 3, &testByte);
 		  f_write(&myFILE, temp_u_char, strlen(temp_u_char), &testByte);
 		  f_write(&myFILE, ",", 1, &testByte);
@@ -439,10 +421,6 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
 		  f_write(&myFILE, alt_char, strlen(alt_char), &testByte);
 		  f_write(&myFILE, "\tm\t", 3, &testByte);
 
-//		  f_write(&myFILE, "Val:\t", 5, &testByte);
-//		  f_write(&myFILE, validechar, strlen(validechar), &testByte);
-//		  f_write(&myFILE, "\t", 1, &testByte);
-
 		  f_write(&myFILE, "G:\t", 3, &testByte);
 		  f_write(&myFILE, gas_char, strlen(gas_char), &testByte);
 		  f_write(&myFILE, "\tppm\t", 5, &testByte);
@@ -451,7 +429,6 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
 		  f_write(&myFILE, bat_char, strlen(bat_char), &testByte);
 		  f_write(&myFILE, "\t%\r\n", 4, &testByte);
 
-		  //close the file
 		  f_close(&myFILE);
 
 		  HAL_Delay(900);

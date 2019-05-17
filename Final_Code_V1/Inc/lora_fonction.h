@@ -60,14 +60,22 @@ int i=5;
 /* Function used to get lora configurtion state and keys such as DevEUI */
 
 void LORA_AT_GET(uint8_t* comm,uint8_t RX_SIZE){
-		uint8_t buffer[128] = {'\0'};
-		uint8_t recep_buff[128]={'\0'};
+	uint8_t buffer[128] = {'\0'};
+	uint8_t recep_buff[128]={'\0'};
+int i=5;
+	sprintf(buffer,"%s\r\n",comm);
+	HAL_UART_Transmit(&hlpuart1, buffer, strlen(buffer), 1000);
+	HAL_StatusTypeDef status = HAL_UART_Receive(&hlpuart1, recep_buff,40,1000);
 
-		sprintf(buffer,"%s\r\n",comm);
-		HAL_UART_Transmit(&hlpuart1, buffer, strlen(buffer), 1000);
-		HAL_StatusTypeDef status = HAL_UART_Receive(&hlpuart1, recep_buff,RX_SIZE,1000);
+	if (recep_buff[0]=='O'){
+		i++;
+		return 1;
+	}
 
-
+	else{
+		i--;
+		return 0;
+	}
 	}
 
 
@@ -115,14 +123,14 @@ uint8_t LORA_AT_JOIN_SET(uint8_t ota_mode){
 	uint8_t buffer[32] = {'\0'};
 	sprintf(buffer,"AT+JOIN=%d\r\n",ota_mode != 0);
 	HAL_UART_Transmit(&hlpuart1, buffer, strlen(buffer), 1000);
-	HAL_StatusTypeDef status = HAL_UART_Receive(&hlpuart1, buffer,20,15000);
+	HAL_StatusTypeDef status = HAL_UART_Receive(&hlpuart1, buffer,20,6000);
 	return 1;
 }
 
 
 /* Function used to send data */
 
-void LORA_AT_SEND( const uint8_t* LON,const uint8_t* LAT,const uint8_t* ALT/*uint8_t DATA_SIZE,uint8_t RX_BUFF_SIZE*/){
+void LORA_AT_SEND( const uint8_t* LON,const uint8_t* LAT,const uint8_t* ALT,const uint8_t* DATA_TEMP,const uint8_t* DATA_HUM){
 
 uint8_t buffer[128] = {'\0'};
 uint8_t comm[]={"AT+SEND=02,"};
@@ -130,7 +138,7 @@ uint8_t COMMAND_SIZE=sizeof(comm);
 uint8_t recep_buff[128]={'\0'};
 char GPS_MASK[5]={"0288"},longi[8]={"\0"},lati[8]={"\0"},alti[8]={"\0"};
 
-
+char CapTemp[5]={"67"},CapHumi[]={"68"},Hum[3]={"\0"},Temp[5]={"\0"};
 
 
 	uint8_t siz_lon=strlen(LON);
@@ -158,6 +166,23 @@ char GPS_MASK[5]={"0288"},longi[8]={"\0"},lati[8]={"\0"},alti[8]={"\0"};
 					strcat(alti,ALT);
 
 
+
+										if (strlen(DATA_TEMP)==1){
+							     	    	 strcat(Temp, "000");
+							     	     }
+							     	     if (strlen(DATA_TEMP)==2){
+							     	     		 strcat(Temp, "00");
+							     	     }
+							     		if (strlen(DATA_TEMP)==3){
+							     				strcat(Temp, "0");
+							     		}
+							     		  strcat(Temp, DATA_TEMP);
+
+							     		 if (strlen(DATA_HUM)==1){
+							     			     strcat(Hum, "0");
+							     		 }
+
+							     		 strcat(Hum, DATA_HUM);
 
 
 

@@ -48,15 +48,15 @@ uint32_t algo_flash_test(uint32_t	Address, uint32_t Address_end, uint32_t  data_
 	return read_error;
 }
 
-void InitFlash(void){
+void InitFlash(uint32_t Addres_start, uint32_t Addres_end){
 	 /* Clear OPTVERR bit set on virgin samples */
   __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR); 
   /* Get the 1st page to erase */
-  FirstPage = GetPage(FLASH_USER_START_ADDR);
+  FirstPage = GetPage(Addres_start); //start adr
   /* Get the number of pages to erase from 1st page */
-  NbOfPages = GetPage(FLASH_USER_END_ADDR) - FirstPage + 1;
+  NbOfPages = GetPage(Addres_end) - FirstPage + 1;
   /* Get the bank */
-  BankNumber = GetBank(FLASH_USER_START_ADDR);
+  BankNumber = GetBank(Addres_start);
   /* Fill EraseInit structure*/
   EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
   EraseInitStruct.Banks       = BankNumber;
@@ -64,8 +64,18 @@ void InitFlash(void){
   EraseInitStruct.NbPages     = NbOfPages;
 }
 
-uint64_t EraseFlash(void){
-	InitFlash();
+
+
+
+
+
+
+
+
+
+
+uint64_t EraseFlash(uint32_t Addres_start, uint32_t Addres_end){
+	InitFlash(Addres_start,Addres_end);
 	
 	uint64_t error_flash_erase = 0x00;
 
@@ -100,7 +110,7 @@ uint32_t WriteFlash(uint32_t Address, uint64_t data, uint32_t Address_end){
 	
   /* Program the user Flash area word by word
     (area defined by FLASH_USER_START_ADDR and FLASH_USER_END_ADDR) ***********/
-	InitFlash();
+	InitFlash(Address,Address_end);
 //  Address = FLASH_USER_START_ADDR;
 	uint32_t error_flash_write = 0x00;
 	HAL_FLASH_Unlock();

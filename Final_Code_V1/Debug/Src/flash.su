@@ -1,5 +1,6 @@
-flash.c:51:6:InitFlash	8	static
-flash.c:67:10:EraseFlash	8	static
-flash.c:99:10:WriteFlash	24	static
-flash.c:128:10:ReadFlash	16	static
+flash.c:179:17:GetPage	0	static
+flash.c:51:6:InitFlash	16	static
+flash.c:77:10:EraseFlash	8	static
+flash.c:109:10:WriteFlash	24	static
+flash.c:138:10:ReadFlash	16	static
 flash.c:40:10:algo_flash_test	24	static
