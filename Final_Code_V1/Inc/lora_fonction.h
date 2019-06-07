@@ -42,8 +42,8 @@ uint8_t LORA_AT_SET(uint8_t* comm){
 	uint8_t recep_buff[128]={'\0'};
 int i=5;
 	sprintf(buffer,"%s\r\n",comm);
-	HAL_UART_Transmit(&hlpuart1, buffer, strlen(buffer), 1000);
-	HAL_StatusTypeDef status = HAL_UART_Receive(&hlpuart1, recep_buff,4,1000);
+	HAL_UART_Transmit(&hlpuart1, buffer, strlen(buffer), 100);
+	HAL_StatusTypeDef status = HAL_UART_Receive(&hlpuart1, recep_buff,40,10);
 
 	if (recep_buff[0]=='O'){
 		i++;
@@ -123,14 +123,14 @@ uint8_t LORA_AT_JOIN_SET(uint8_t ota_mode){
 	uint8_t buffer[32] = {'\0'};
 	sprintf(buffer,"AT+JOIN=%d\r\n",ota_mode != 0);
 	HAL_UART_Transmit(&hlpuart1, buffer, strlen(buffer), 1000);
-	HAL_StatusTypeDef status = HAL_UART_Receive(&hlpuart1, buffer,20,6000);
+	HAL_StatusTypeDef status = HAL_UART_Receive(&hlpuart1, buffer,20,100);
 	return 1;
 }
 
 
 /* Function used to send data */
 
-void LORA_AT_SEND( const uint8_t* LON,const uint8_t* LAT,const uint8_t* ALT,const uint8_t* DATA_TEMP,const uint8_t* DATA_HUM){
+void LORA_AT_SEND( const uint8_t* LON,const uint8_t* LAT,const uint8_t* ALT,const uint8_t* DATA_TEMP,const uint8_t* DATA_HUM,const uint8_t* DATA_PRES){
 
 uint8_t buffer[128] = {'\0'};
 uint8_t comm[]={"AT+SEND=02,"};
@@ -138,7 +138,7 @@ uint8_t COMMAND_SIZE=sizeof(comm);
 uint8_t recep_buff[128]={'\0'};
 char GPS_MASK[5]={"0288"},longi[8]={"\0"},lati[8]={"\0"},alti[8]={"\0"};
 
-char CapTemp[5]={"67"},CapHumi[]={"68"},Hum[3]={"\0"},Temp[5]={"\0"};
+char CapTemp[5]={"67"},CapHumi[]={"68"},Hum[3]={"\0"},Temp[5]={"\0"},CapPres[]={"73"},Pres[5]={"\0"};
 
 
 	uint8_t siz_lon=strlen(LON);
@@ -167,7 +167,7 @@ char CapTemp[5]={"67"},CapHumi[]={"68"},Hum[3]={"\0"},Temp[5]={"\0"};
 
 
 
-										if (strlen(DATA_TEMP)==1){
+							if (strlen(DATA_TEMP)==1){
 							     	    	 strcat(Temp, "000");
 							     	     }
 							     	     if (strlen(DATA_TEMP)==2){
@@ -187,11 +187,24 @@ char CapTemp[5]={"67"},CapHumi[]={"68"},Hum[3]={"\0"},Temp[5]={"\0"};
 
 
 
+							     		if (strlen(DATA_PRES)==1){
+							     			strcat(Pres, "000");
+							     		}
+							    	    if (strlen(DATA_PRES)==2){
+							     	     	 strcat(Pres, "00");
+							     	    }
+							     		if (strlen(DATA_PRES)==3){
+							       			strcat(Pres, "0");
+							     		}
 
-		    sprintf(buffer,"AT+SEND=2,%s%s%s%s,0\r\n",GPS_MASK,longi,lati,alti);
+							     		strcat(Pres, DATA_PRES);
 
-		     		HAL_UART_Transmit(&hlpuart1, buffer, strlen(buffer), 1000);
-		     		HAL_StatusTypeDef status = HAL_UART_Receive(&hlpuart1, recep_buff,8,5000);
+
+
+		    sprintf(buffer,"AT+SEND=2,%s%s%s%s02%s%s02%s%s02%s%s,0\r\n",GPS_MASK,longi,lati,alti,CapTemp,Temp,CapHumi,Hum,CapPres,Pres);
+//02%s%s02%s%s
+		     		HAL_UART_Transmit(&hlpuart1, buffer, strlen(buffer), 100);
+		     		HAL_StatusTypeDef status = HAL_UART_Receive(&hlpuart1, recep_buff,20,100);
 
 
 HAL_Delay(100);

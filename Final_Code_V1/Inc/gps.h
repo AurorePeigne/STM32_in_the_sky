@@ -105,10 +105,13 @@ uint8_t k=0;
 	do	{
 
 
+		HAL_UART_DeInit(&huart1);
+		HAL_UART_Init(&huart1);
 
-HAL_StatusTypeDef status = 	HAL_UART_Receive(&huart1, (uint8_t *)in_get1, RX_BUFF_SIZE, 100);
 
-						    HAL_UART_Receive(&huart1, (uint8_t *)in_get2, RX_BUFF_SIZE, 100);
+HAL_StatusTypeDef status = 	HAL_UART_Receive(&huart1, (uint8_t *)in_get1, RX_BUFF_SIZE, 1000);
+
+						    HAL_UART_Receive(&huart1, (uint8_t *)in_get2, RX_BUFF_SIZE, 1000);
 
 							HAL_UART_Receive(&huart1, (uint8_t *)in_get3, RX_BUFF_SIZE, 100);
 
@@ -156,7 +159,8 @@ HAL_StatusTypeDef status = 	HAL_UART_Receive(&huart1, (uint8_t *)in_get1, RX_BUF
 							}
 
 
-
+							HAL_UART_DeInit(&huart1);
+							HAL_UART_Init(&huart1);
 							 MX_USART1_UART_Init();
 
 

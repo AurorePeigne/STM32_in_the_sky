@@ -90,7 +90,7 @@
 
 /* USER CODE BEGIN PV */
 uint8_t aShowTime[50] = {0};
-uint8_t toggle=0;
+uint8_t toggle=1;
 uint64_t erreur = 0x00;
 uint8_t i = 0;
 uint32_t erreur_data = 0x00;
@@ -116,7 +116,7 @@ static void RTC_TimeShow(uint8_t* showtime)
   HAL_RTC_GetDate(&hrtc, &sdatestructureget, RTC_FORMAT_BIN);
   /* Display time Format : hh:mm:ss */
   sprintf((char*)showtime,"%02d:%02d:%02d",stimestructureget.Hours, stimestructureget.Minutes, stimestructureget.Seconds);
-  HAL_UART_Transmit(&huart2,showtime,50,100);
+ // HAL_UART_Transmit(&huart2,showtime,50,100);
 }
 
 
@@ -142,8 +142,7 @@ static void SystemPower_Config(void)
   * @brief  The application entry point.
   * @retval int
   */
-int main(void)
-{
+int main(void){
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -176,49 +175,34 @@ int main(void)
   MX_SDMMC1_SD_Init();
   MX_FATFS_Init();
   MX_LPUART1_UART_Init();
-  MX_RTC_Init();
+ // MX_RTC_Init();
+  HAL_UART_DeInit(&huart1);
+  HAL_UART_Init(&huart1);
   /* USER CODE BEGIN 2 */
 
   //*****************************INIT SENSORS*************************//
 
   TEMP_HUM_init();
   PRES_init();
- // MAGN_init();
-  //DMA_init();
+  MAGN_init();
+  DMA_init();
 
 HAL_Delay(10);
 
   uint32_t GPS_COORD[3];
 
-//  uint32_t adr_stop_2=ADDR_FLASH_PAGE_19+ FLASH_PAGE_SIZE - 1;
-//
-//
-//  uint64_t skip_temp=0;
-//
-//  uint64_t skip;
-//
-//  EraseFlash(ADDR_FLASH_PAGE_18,ADDR_FLASH_PAGE_19);
-//WriteFlash(ADDR_FLASH_PAGE_18, skip_temp, ADDR_FLASH_PAGE_19);
-//uint32_t *ptr=ADDR_FLASH_PAGE_17;
-//skip=*ptr;
-
-  //*****************************INIT LORA****************************//
-//if (skip!=1){
-//	 HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-//
-//	skip_temp++;
-//	skip=skip_temp;
-//	 EraseFlash(ADDR_FLASH_PAGE_17,ADDR_FLASH_PAGE_18);
-//	WriteFlash(ADDR_FLASH_PAGE_17, skip, ADDR_FLASH_PAGE_18);
-
 /*
+  LORA_AT_SET("AT+EUI");
+ HAL_UART_DeInit(&hlpuart1);
+ HAL_UART_Init(&hlpuart1);
+
 
    LORA_AT_SET("AT+ATZ");
   HAL_UART_DeInit(&hlpuart1);
   HAL_UART_Init(&hlpuart1);
-
+*/
 //OTAA
-
+/*
 
   LORA_AT_SET("AT+APPEUI=db815fb2f1feaf0c");//AT+APPEUI=70b3d57ed0014d9e ABP
   HAL_UART_DeInit(&hlpuart1);
@@ -237,7 +221,7 @@ HAL_Delay(10);
 
 
 
-*/
+
 
 
 
@@ -248,6 +232,8 @@ HAL_Delay(10);
   HAL_UART_DeInit(&hlpuart1);
   HAL_UART_Init(&hlpuart1);
 
+
+*/
   LORA_AT_SET("AT+APPEUI=70b3d57ed0014d9e");//APPEUI=900dcafe00000001");//last = 1
   HAL_UART_DeInit(&hlpuart1);
   HAL_UART_Init(&hlpuart1);
@@ -271,14 +257,15 @@ HAL_Delay(10);
   HAL_UART_DeInit(&hlpuart1);
   HAL_UART_Init(&hlpuart1);
 
-
+  LORA_AT_SET("AT+DR=4");
+  HAL_UART_DeInit(&hlpuart1);
+  HAL_UART_Init(&hlpuart1);
 
   LORA_AT_JOIN_SET(0);
   HAL_UART_DeInit(&hlpuart1);
   HAL_UART_Init(&hlpuart1);
 
 
-//}
 
 //LORA_AT_SET("AT+EUI");
 //HAL_UART_DeInit(&hlpuart1);
@@ -298,6 +285,7 @@ HAL_Delay(10);
   char buff_alt[20];
   char buff_temp[20];
   char buff_hum[20];
+  char buff_pres[20];
   //LORA_AT_SEND(CONV_CHAR32(GPS_COORD[0],buff_lon),CONV_CHAR32(GPS_COORD[1],buff_lat),CONV_CHAR32(GPS_COORD[2],buff_alt));
 
   //*****************************END SEND THROUGH LORA*******************//
@@ -339,20 +327,22 @@ erreur_write=  WriteFlash(ADDR_FLASH_PAGE_19, cpt, adr_stop );
 			  cpt=*ptr2;
 			  cpt++;
 
-  EraseFlash(ADDR_FLASH_PAGE_19,ADDR_FLASH_PAGE_20);
-WriteFlash(ADDR_FLASH_PAGE_19, cpt, ADDR_FLASH_PAGE_20);
+  EraseFlash(ADDR_FLASH_PAGE_19,ADDR_FLASH_PAGE_19+31);
+WriteFlash(ADDR_FLASH_PAGE_19, cpt, ADDR_FLASH_PAGE_19+31);
 
 
-			 LORA_AT_SEND(CONV_CHAR32(GPS_COORD[0],buff_lon),CONV_CHAR32(GPS_COORD[1],buff_lat),CONV_CHAR32(GPS_COORD[2],buff_alt),CONV_CHAR(temp16[0],buff_temp), CONV_CHAR(hum16[0],buff_hum));
-			//  SD_SENSORS(GPS_COORD[0],GPS_COORD[1],GPS_COORD[2]);
+			 LORA_AT_SEND(CONV_CHAR32(GPS_COORD[0],buff_lon),CONV_CHAR32(GPS_COORD[1],buff_lat),CONV_CHAR32(GPS_COORD[2],buff_alt),CONV_CHAR(temp16[0],buff_temp), CONV_CHAR(hum16_x2[0],buff_hum),CONV_CHAR32(pres32[0]*10,buff_pres));
+			  SD_SENSORS(GPS_COORD[0],GPS_COORD[1],GPS_COORD[2]);
 
 
 
 						if((cpt)%5 == 0)
 			 			  	   {
+									erreur_data=ReadFlash(FLASH_USER_START_ADDR, DATA_32);
 			 			  		  	erreur = EraseFlash(FLASH_USER_START_ADDR,ADDR_FLASH_PAGE_255);
+
 			 			  		  	erreur_write= WriteFlash(FLASH_USER_START_ADDR, DATA_64, FLASH_USER_END_ADDR);
-			 			  		  	//  erreur_data=ReadFlash(FLASH_USER_START_ADDR, DATA_32);
+
 
 			 			  		  	//  erreur_data = algo_flash_test(FLASH_USER_START_ADDR, FLASH_USER_END_ADDR, DATA_32, DATA_64);
 			 			  		  	cpt_flash++;
@@ -363,7 +353,7 @@ WriteFlash(ADDR_FLASH_PAGE_19, cpt, ADDR_FLASH_PAGE_20);
 
 /* ************* LOW POWER MANAGEMENT ******************/
 /* Clear all related wakeup flags */
-			//  __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+			  __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
 			  toggle=0;
 			  MX_RTC_Init();
 			  HAL_PWR_EnterSTANDBYMode();

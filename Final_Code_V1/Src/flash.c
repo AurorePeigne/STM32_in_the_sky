@@ -41,9 +41,9 @@ uint32_t algo_flash_test(uint32_t	Address, uint32_t Address_end, uint32_t  data_
 	
 	uint32_t write_error = 0x00;
 	uint32_t read_error = 0x00;
-	
-	write_error = WriteFlash(Address, data, Address_end);
 	read_error = ReadFlash(Address, data_verif);
+	write_error = WriteFlash(Address, data, Address_end);
+
 	
 	return read_error;
 }

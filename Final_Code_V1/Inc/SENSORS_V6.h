@@ -55,7 +55,10 @@ int16_t T1_OUT[1];
 int16_t T_OUT[1];
 
 uint8_t addr_CTRL_REG1_TEMP[1]={0x20};
-uint8_t CTRL_REG1_TEMP[1]={0x83};
+uint8_t CTRL_REG1_TEMP[1]={0x83};//83
+
+uint8_t addr_CTRL_REG2_TEMP[1]={0x21};
+uint8_t CTRL_REG2_TEMP[1]={0x88};
 
 int16_t temp16[1];
 
@@ -87,12 +90,12 @@ uint8_t H1_T0_OUT_H[1];
 
 uint16_t H0_rH[1];
 uint16_t H1_rH[1];
-uint16_t H0[1];
-uint16_t H1[1];
-uint16_t H_OUT[1];
+int16_t H0[1];
+int16_t H1[1];
+int16_t H_OUT[1];
 
 uint16_t hum16[1];
-
+uint16_t hum16_x2[1];
 
 //PRESSURE/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -197,6 +200,7 @@ uint16_t est_negatif(uint16_t valeur)
 void TEMP_HUM_init(void)
 {
 	HAL_I2C_Mem_Write(&hi2c1,0xBE, addr_CTRL_REG1_TEMP[0], 1, CTRL_REG1_TEMP, 1, I2C_TIMEOUT);
+	HAL_I2C_Mem_Write(&hi2c1,0xBE, addr_CTRL_REG2_TEMP[0], 1, CTRL_REG2_TEMP, 1, I2C_TIMEOUT);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -277,7 +281,7 @@ void get_HUM(void)
 	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_HUM_H[0], 1, HUM_H, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_HUM_L[0], 1, HUM_L, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_H0_rH_x2[0], 1, H0_rH_x2, 1, I2C_TIMEOUT);
-	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_H1_rH_x2[0], 1, H0_rH_x2, 1, I2C_TIMEOUT);
+	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_H1_rH_x2[0], 1, H1_rH_x2, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_H0_T0_OUT_H[0], 1, H0_T0_OUT_H, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_H0_T0_OUT_L[0], 1, H0_T0_OUT_L, 1, I2C_TIMEOUT);
 	HAL_I2C_Mem_Read(&hi2c1,0xBF, addr_H1_T0_OUT_H[0], 1, H1_T0_OUT_H, 1, I2C_TIMEOUT);
@@ -286,12 +290,19 @@ void get_HUM(void)
 	H0_rH[0]	= H0_rH_x2[0]>>1;
 	H1_rH[0]	= H1_rH_x2[0]>>1;
 
+
 	H0[0]		= (H0_T0_OUT_H[0]<<8) + H0_T0_OUT_L[0];
 	H1[0]		= (H1_T0_OUT_H[0]<<8) + H1_T0_OUT_L[0];
+
+
+	//H0[0]		= 4000;
+	//H1[0]	=6000;
+
 	H_OUT[0]	= (HUM_H[0]<<8) + HUM_L[0];
 
 	//CALCUL DE L'HUMIDITE
-	hum16[0] = ((int16_t)(H1_rH[0]-H0_rH[0]))*((int16_t)(H_OUT[0]-H0[0]))/((int16_t)(H1[0]-H0[0]))+(int16_t)(H0_rH[0]);
+	hum16[0] = (((int16_t)(H1_rH[0]-H0_rH[0]))*((int16_t)(H_OUT[0]-H0[0]))/((int16_t)(H1[0]-H0[0])))+(int16_t)(H0_rH[0]);
+	hum16_x2[0]=hum16[0]*2;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -431,7 +442,7 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
 
 		  f_close(&myFILE);
 
-		  HAL_Delay(900);
+		  HAL_Delay(50);
 
 		  //we change the state of the LED
 		  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
