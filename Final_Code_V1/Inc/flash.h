@@ -528,5 +528,5 @@ static uint32_t GetBank(uint32_t Address);
 #define ADDR_FLASH_PAGE_510   ((uint32_t)0x080ff000) /* Base @ of Page 510, 2 Kbytes */
 #define ADDR_FLASH_PAGE_511   ((uint32_t)0x080ff800) /* Base @ of Page 511, 2 Kbytes */
 
-#define FLASH_USER_START_ADDR   ADDR_FLASH_PAGE_20   /* Start @ of user Flash area */
+#define FLASH_USER_START_ADDR   ADDR_FLASH_PAGE_21   /* Start @ of user Flash area */
 #define FLASH_USER_END_ADDR     ADDR_FLASH_PAGE_255 + FLASH_PAGE_SIZE - 1   /* End @ of user Flash area */

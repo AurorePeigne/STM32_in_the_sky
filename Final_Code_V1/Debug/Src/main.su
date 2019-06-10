@@ -19,6 +19,6 @@ lora_fonction.h:105:6:LORA_AT_JSDA	40	static
 lora_fonction.h:122:9:LORA_AT_JOIN_SET	40	static
 lora_fonction.h:133:6:LORA_AT_SEND	416	static
 main.c:374:6:SystemClock_Config	248	static
-main.c:145:5:main	208	static
+main.c:145:5:main	200	static
 main.c:445:6:HAL_RTC_AlarmAEventCallback	0	static
 main.c:460:6:Error_Handler	0	static

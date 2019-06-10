@@ -93,7 +93,7 @@ uint8_t aShowTime[50] = {0};
 uint8_t toggle=1;
 uint64_t erreur = 0x00;
 uint8_t i = 0;
-uint32_t erreur_data = 0x00;
+uint32_t erreur_data = 0;
 uint32_t erreur_write = 0x00;
 
 uint32_t *ptr2=ADDR_FLASH_PAGE_19;
@@ -189,7 +189,7 @@ int main(void){
 
 HAL_Delay(10);
 
-  uint32_t GPS_COORD[3];
+  int32_t GPS_COORD[4];
 
 /*
   LORA_AT_SET("AT+EUI");
@@ -320,7 +320,7 @@ erreur_write=  WriteFlash(ADDR_FLASH_PAGE_19, cpt, adr_stop );
 			  get_PRES();				//PRESSION			(mbar ou hPa)
 			  get_MAGN();				//CHAMP MAGNETIQUE	(mgauss)
 			  get_ADC();				//GAS				(ppm)
-			  GPS_GETPOS(GPS_COORD);	//POSITION GPS		(m)
+		//	  GPS_GETPOS(GPS_COORD);	//POSITION GPS		(m)
 
 
 
@@ -332,23 +332,23 @@ WriteFlash(ADDR_FLASH_PAGE_19, cpt, ADDR_FLASH_PAGE_19+31);
 
 
 			 LORA_AT_SEND(CONV_CHAR32(GPS_COORD[0],buff_lon),CONV_CHAR32(GPS_COORD[1],buff_lat),CONV_CHAR32(GPS_COORD[2],buff_alt),CONV_CHAR(temp16[0],buff_temp), CONV_CHAR(hum16_x2[0],buff_hum),CONV_CHAR32(pres32[0]*10,buff_pres));
-			  SD_SENSORS(GPS_COORD[0],GPS_COORD[1],GPS_COORD[2]);
+			//  SD_SENSORS(GPS_COORD[0],GPS_COORD[1],GPS_COORD[2],erreur_data);
 
 
 
-						if((cpt)%5 == 0)
+						if((cpt)%1 == 0)
 			 			  	   {
 									erreur_data=ReadFlash(FLASH_USER_START_ADDR, DATA_32);
-			 			  		  	erreur = EraseFlash(FLASH_USER_START_ADDR,ADDR_FLASH_PAGE_255);
+			 			  		  	erreur = EraseFlash(FLASH_USER_START_ADDR,ADDR_FLASH_PAGE_255-1);
 
-			 			  		  	erreur_write= WriteFlash(FLASH_USER_START_ADDR, DATA_64, FLASH_USER_END_ADDR);
+			 			  		  	erreur_write= WriteFlash(FLASH_USER_START_ADDR, DATA_64, ADDR_FLASH_PAGE_255-1);
 
 
 			 			  		  	//  erreur_data = algo_flash_test(FLASH_USER_START_ADDR, FLASH_USER_END_ADDR, DATA_32, DATA_64);
 			 			  		  	cpt_flash++;
 
 			 			  	   }
-
+						 SD_SENSORS(GPS_COORD[0],GPS_COORD[1],GPS_COORD[2],erreur_data);
 
 
 /* ************* LOW POWER MANAGEMENT ******************/

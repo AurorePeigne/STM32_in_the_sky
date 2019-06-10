@@ -76,7 +76,7 @@ static void UART_EndRxTransfer(UART_HandleTypeDef *huart)
 
 uint32_t* GPS_GETPOS(uint32_t* tab){
 
-int GPS_TIMEOUT=10000;
+int GPS_TIMEOUT=500;
 int cpt_timeout=0;
 
 /* Buffers to catch the GPGGA frame */
@@ -174,9 +174,10 @@ cpt_timeout++;
 
 
 	if (cpt_timeout>=GPS_TIMEOUT){
-		tab[0]=0;
-		tab[1]=0;
-		tab[2]=0;
+		tab[0]=43;
+		tab[1]=5;
+		tab[2]=1;
+		tab[3]=0;
 		return tab;
 	}
 
@@ -265,7 +266,7 @@ LON_L[2]=*p;
 p++;
 LON_L[3]='\0';
 
-uint32_t LON=0;
+int32_t LON=0;
 uint32_t nb_LON_H=0;
 uint32_t nb_LON_M=0;
 uint32_t nb_LON_L=0;
@@ -282,11 +283,15 @@ HAL_Delay(10);
 
 p=strchr(p,',');
 p++;
-
+uint8_t orientation[1]={*p};
+if (orientation[0]=='O'){
+	LON=-LON;
+}
 p=strchr(p,',');
 p++;
 DATA_VALIDE[0]=*p;
 DATA_VALIDE[1]='\0';
+
 p=strchr(p,',');
 p++;
 p=strchr(p,',');
@@ -315,7 +320,7 @@ HAL_Delay(10);
 tab[0]=LAT;
 tab[1]=LON;
 tab[2]=atoi(ALT)*100;
-
+tab[3]=atoi(DATA_VALIDE);
 
 
 

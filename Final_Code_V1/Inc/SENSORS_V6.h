@@ -182,7 +182,7 @@ char alt_char[20];
 
 char gas_char[20];
 char bat_char[20];
-
+char err_char[20];
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -368,7 +368,7 @@ void get_ADC(void)
 
 
 
-void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
+void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32,uint32_t err)
 {
 
 	itoa(temp16u[0],temp_u_char,10);
@@ -388,7 +388,7 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
 	itoa(lon32,lon_char,10);
 	itoa(lat32,lat_char,10);
 	itoa(alti32,alt_char,10);
-
+	itoa(err,err_char,10);
 	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
 	HAL_Delay(100);
 
@@ -438,7 +438,11 @@ void SD_SENSORS(uint32_t lon32, uint32_t lat32, uint32_t alt32)
 
 		  f_write(&myFILE, "Bat:\t", 5, &testByte);
 		  f_write(&myFILE, bat_char, strlen(bat_char), &testByte);
-		  f_write(&myFILE, "\t%\r\n", 4, &testByte);
+		  f_write(&myFILE, "\t%\r\t", 4, &testByte);
+
+		  f_write(&myFILE, "Erreur:\t", 8, &testByte);
+		  f_write(&myFILE, err_char, strlen(err_char), &testByte);
+		  f_write(&myFILE, "\r\n", 2, &testByte);
 
 		  f_close(&myFILE);
 

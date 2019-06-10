@@ -14,8 +14,8 @@
 /* Private variables ---------------------------------------------------------*/
 uint32_t FirstPage = 0, NbOfPages = 0, BankNumber = 0;
 uint32_t Address = 0, PAGEError = 0;
-__IO uint32_t data32 = 0 , MemoryProgramStatus = 0;
-
+__IO uint32_t data32 = 0 ;
+uint32_t	 MemoryProgramStatus = 0;
 /*Variable used for Erase procedure*/
 static FLASH_EraseInitTypeDef EraseInitStruct;
 
@@ -144,7 +144,7 @@ uint32_t ReadFlash( uint32_t	Address, uint32_t  data_verif){
   MemoryProgramStatus = 0x0;
 	uint64_t error_flash_read = 0x00;
 
-  while (Address < FLASH_USER_END_ADDR)
+  while (Address < ADDR_FLASH_PAGE_255)
   {
     data32 = *(__IO uint32_t *)Address;
 
