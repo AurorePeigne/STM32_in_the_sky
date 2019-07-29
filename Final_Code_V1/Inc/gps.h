@@ -20,62 +20,26 @@
 
 
 
-/* Convert a uint32 into a uint8 array in hexadecimal format */
+/* Convert a uint32 into a uint8 array in hexadecimal format (used in the LORA_AT_SEND function to build the payload) */
 
 
 uint8_t * CONV_CHAR32(uint32_t val, uint8_t * tab){
 
-
+/* itoa converts a number to a string with the radix dpecified */
 	itoa(val,tab,16);
 	return tab;
 }
 
 
 
-static void UART_EndTxTransfer(UART_HandleTypeDef *huart)
-{
-#if defined(USART_CR1_FIFOEN)
-  /* Disable TXEIE, TCIE, TXFT interrupts */
-  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_TXEIE_TXFNFIE | USART_CR1_TCIE));
-  CLEAR_BIT(huart->Instance->CR3, (USART_CR3_TXFTIE));
-#else
-  /* Disable TXEIE and TCIE interrupts */
-  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_TXEIE | USART_CR1_TCIE));
-#endif
 
-  /* At end of Tx process, restore huart->gState to Ready */
-  huart->gState = HAL_UART_STATE_READY;
-}
-
-
-/**
-  * @brief  End ongoing Rx transfer on UART peripheral (following error detection or Reception completion).
-  * @param huart UART handle.
-  * @retval None
-  */
-static void UART_EndRxTransfer(UART_HandleTypeDef *huart)
-{
-  /* Disable RXNE, PE and ERR (Frame error, noise error, overrun error) interrupts */
-#if defined(USART_CR1_FIFOEN)
-  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE_RXFNEIE | USART_CR1_PEIE));
-  CLEAR_BIT(huart->Instance->CR3, (USART_CR3_EIE | USART_CR3_RXFTIE));
-#else
-  CLEAR_BIT(huart->Instance->CR1, (USART_CR1_RXNEIE | USART_CR1_PEIE));
-  CLEAR_BIT(huart->Instance->CR3, USART_CR3_EIE);
-#endif
-
-  /* At end of Rx process, restore huart->RxState to Ready */
-  huart->RxState = HAL_UART_STATE_READY;
-
-  /* Reset RxIsr function pointer */
-  huart->RxISR = NULL;
-}
 
 
 /* Get GPS position by extracting the GPGGA frame, with a timeout condition to exit the function if it cannot reach a good value */
 
 uint32_t* GPS_GETPOS(uint32_t* tab){
 
+	/* Initialize a timeout and a timeout counter to exit the function if the GPS does not have any GPS signal */
 int GPS_TIMEOUT=500;
 int cpt_timeout=0;
 
@@ -89,11 +53,11 @@ uint8_t in_get4[RX_BUFF_SIZE];
 uint8_t in_get5[RX_BUFF_SIZE];
 uint8_t in_get6[RX_BUFF_SIZE];
 
-/* pointers to catch the gps frame and its end */
+/* pointers to catch the GPS frame and its end */
 
 char * p=0x0;
 char *q=0x0;
-uint32_t taille=100;
+
 
 uint8_t DATA_VALIDE[2];
 
@@ -104,14 +68,15 @@ uint8_t k=0;
 
 	do	{
 
-
+/* Init and Deinit UART to make it work fine, if we don't do it the UART never change state */
 		HAL_UART_DeInit(&huart1);
 		HAL_UART_Init(&huart1);
 
+/* Launch an acquisition of UART, as we can not get a buffer exceeding 200 bytes, we do 6 acquisition of 200 bytes */
 
-HAL_StatusTypeDef status = 	HAL_UART_Receive(&huart1, (uint8_t *)in_get1, RX_BUFF_SIZE, 1000);
+HAL_StatusTypeDef status = 	HAL_UART_Receive(&huart1, (uint8_t *)in_get1, RX_BUFF_SIZE, 100);
 
-						    HAL_UART_Receive(&huart1, (uint8_t *)in_get2, RX_BUFF_SIZE, 1000);
+						    HAL_UART_Receive(&huart1, (uint8_t *)in_get2, RX_BUFF_SIZE, 100);
 
 							HAL_UART_Receive(&huart1, (uint8_t *)in_get3, RX_BUFF_SIZE, 100);
 
@@ -123,9 +88,11 @@ HAL_StatusTypeDef status = 	HAL_UART_Receive(&huart1, (uint8_t *)in_get1, RX_BUF
 
 
 
-
+/* Use of the function strstr from stdlib.h to find the first occurence of $GPGGA in the UART buffers */
 
 							p=strstr((char*)in_get1,"$GPGGA");
+
+/* Use of p=0x0, if the value of p is unchaged, test if we have the $GPGGA frame in the next buffer */
 
 							if (p==0x0){
 
@@ -135,13 +102,13 @@ HAL_StatusTypeDef status = 	HAL_UART_Receive(&huart1, (uint8_t *)in_get1, RX_BUF
 
 
 							if (p==0x0){
-										//i=4;
+
 										p=strstr((char*)in_get3,"$GPGGA");
 														}
 
 
 							if (p==0x0){
-										//i=5;
+
 										p=strstr((char*)in_get4,"$GPGGA");
 														}
 
@@ -158,19 +125,32 @@ HAL_StatusTypeDef status = 	HAL_UART_Receive(&huart1, (uint8_t *)in_get1, RX_BUF
 										p=strstr((char*)in_get6,"$GPGGA");
 							}
 
+/* Init and deinit UART to mae it work fine */
 
 							HAL_UART_DeInit(&huart1);
 							HAL_UART_Init(&huart1);
-							 MX_USART1_UART_Init();
+							MX_USART1_UART_Init();
 
+/* Initialize a pointer 'q' to the end of the frame collected */
 
 							 q=strstr(p,"\r\n");
-taille=q-p;
+
+
+
+/* The counter is incremented as we have done one iteration, usually we do 3 iterations, 5 maximum when tested */
 cpt_timeout++;
+
+/* Condition of end : if the frame is too long or too short or not found AND the timeout is not reached, stay in the "while"
+ *
+ * It may happen that the GPS frame $GPGGA is found, but it can be at the end of a buffer, or the frame can be incomplete.
+ * The frame is around 70 characters long, so we assure that the frame is correct with the <50 and >100 condition.
+ *
+ */
+
 }while(((q-p>100)||(q-p==0)||(q==0x0)||(q-p<50))&&(cpt_timeout<GPS_TIMEOUT));
 
 
-	/* if timeout has been reached, get out of the function */
+	/* if timeout has been reached, get out of the function and give false position known by the user */
 
 
 	if (cpt_timeout>=GPS_TIMEOUT){
@@ -188,8 +168,14 @@ cpt_timeout++;
 
 //******************* Conversion from minutes and second degrees to decimal degrees *********************
 
-	/* Latitude acquisition and conversion */
+	/* In the following steps, we take in account the fact that we will send data through LoRa with Cayenne LPP payload format
+	 * To achieve that we shall not take every digit for each position as it would do a bad conversion later
+	 */
 
+
+
+	/* Latitude acquisition and conversion */
+/* Skip the fields that we do not want */
 HAL_Delay(10);
 p=strchr(p,',');
 p++;
@@ -225,15 +211,22 @@ uint32_t nb_LAT_H=0;
 uint32_t nb_LAT_M=0;
 uint32_t nb_LAT_L=0;
 
+/* Atoi converts a string to a number */
+
 nb_LAT_H=atoi(LAT_H);
 nb_LAT_M=atoi(LAT_M);
 nb_LAT_L=atoi(LAT_L);
+
+/* We compute the data so we have a decimal degree position */
 
 LAT=nb_LAT_H*10000+(uint32_t)((nb_LAT_M*10000)/60)+(uint32_t)((nb_LAT_L*10000)/36000);
 
 
 
 /* Longitude acquisition and conversion */
+
+/* Here we repeat the work done on the latitude */
+
 
 HAL_Delay(10);
 p=strchr(p,',');
@@ -279,14 +272,17 @@ LON=nb_LON_H*10000+(uint32_t)((nb_LON_M*10000)/60)+(uint32_t)((nb_LON_L*10000)/3
 
 HAL_Delay(10);
 
-/* Check if the data is valid, 0 : not valid, 1 valid with GPS fix, 2 valid with DGPS fix */
+
 
 p=strchr(p,',');
 p++;
+/* Check the orientation, if it is East the longitude is positive, else it is negative */
 uint8_t orientation[1]={*p};
 if (orientation[0]=='O'){
 	LON=-LON;
 }
+
+/* Check if the data is valid, 0 : not valid, 1 valid with GPS fix, 2 valid with DGPS fix */
 p=strchr(p,',');
 p++;
 DATA_VALIDE[0]=*p;
@@ -299,23 +295,26 @@ p++;
 p=strchr(p,',');
 p++;
 
-/* Get the altitude, if the altitude is under 0 we get the absolute value of altitude */
+/* Get the altitude, if the altitude is under 0 we get the absolute value of altitude
+ * We only get absolute altitude, as the balloon will go up only
+ *  */
 
 char ALT[15];
 while (*p!='.'){
-if (*p=='-'){
+	if (*p=='-'){
+		p++;
+	};
+	ALT[k]=*p;
 	p++;
-};
-ALT[k]=*p;
-p++;
-k++;
-}
+	k++;
+	}
+
 ALT[k]='\0';
 HAL_Delay(10);
 
 
 
-
+/* return the array with the data, we multiply the altitude by 100 to fot the Cayenne LPP format */
 
 tab[0]=LAT;
 tab[1]=LON;

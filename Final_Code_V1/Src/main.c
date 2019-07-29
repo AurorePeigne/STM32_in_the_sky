@@ -91,7 +91,7 @@
 /* USER CODE BEGIN PV */
 uint8_t aShowTime[50] = {0};
 uint8_t toggle=1;
-uint64_t erreur = 0x00;
+uint64_t erreur = 0;
 uint8_t i = 0;
 uint32_t erreur_data = 0;
 uint32_t erreur_write = 0x00;
@@ -189,18 +189,13 @@ int main(void){
 
 HAL_Delay(10);
 
-  int32_t GPS_COORD[4];
-
-/*
-  LORA_AT_SET("AT+EUI");
- HAL_UART_DeInit(&hlpuart1);
- HAL_UART_Init(&hlpuart1);
+ int32_t GPS_COORD[4];
 
 
-   LORA_AT_SET("AT+ATZ");
-  HAL_UART_DeInit(&hlpuart1);
-  HAL_UART_Init(&hlpuart1);
-*/
+
+
+
+
 //OTAA
 /*
 
@@ -216,25 +211,17 @@ HAL_Delay(10);
 
 
 
-  //OTAA FINI
+  //OTAA END
 
 
-
-
-
-
-
-
-
-
-
-  LORA_AT_SET("AT+ATZ");
-  HAL_UART_DeInit(&hlpuart1);
-  HAL_UART_Init(&hlpuart1);
 
 
 */
-  LORA_AT_SET("AT+APPEUI=70b3d57ed0014d9e");//APPEUI=900dcafe00000001");//last = 1
+
+  //ABP
+
+
+  LORA_AT_SET("AT+APPEUI=70b3d57ed0014d9e");
   HAL_UART_DeInit(&hlpuart1);
   HAL_UART_Init(&hlpuart1);
 
@@ -250,7 +237,7 @@ HAL_Delay(10);
   LORA_AT_SET("AT+ADDR=26011a95");
   HAL_UART_DeInit(&hlpuart1);
   HAL_UART_Init(&hlpuart1);
-
+//ABP END
 
 
   LORA_AT_SET("AT+DC=0");
@@ -267,16 +254,11 @@ HAL_Delay(10);
 
 
 
-//LORA_AT_SET("AT+EUI");
-//HAL_UART_DeInit(&hlpuart1);
-//HAL_UART_Init(&hlpuart1);
-
 
   //*****************************END INIT LORA****************************/
 
 
   //*****************************SEND THROUGH LORA***********************//
- // HAL_PWREx_EnableSRAM2ContentRetention();
 
 
 
@@ -286,7 +268,6 @@ HAL_Delay(10);
   char buff_temp[20];
   char buff_hum[20];
   char buff_pres[20];
-  //LORA_AT_SEND(CONV_CHAR32(GPS_COORD[0],buff_lon),CONV_CHAR32(GPS_COORD[1],buff_lat),CONV_CHAR32(GPS_COORD[2],buff_alt));
 
   //*****************************END SEND THROUGH LORA*******************//
 
@@ -296,13 +277,7 @@ HAL_Delay(10);
 
   //*****************************FLASH**********************************//
   uint64_t cpt;
-uint32_t adr_stop=ADDR_FLASH_PAGE_20+ FLASH_PAGE_SIZE - 1;
-/*
-  uint64_t cpt=0;
-  EraseFlash(ADDR_FLASH_PAGE_19,ADDR_FLASH_PAGE_20);
-erreur_write=  WriteFlash(ADDR_FLASH_PAGE_19, cpt, adr_stop );
 
-*/
 
   /* USER CODE END 2 */
 
@@ -320,7 +295,7 @@ erreur_write=  WriteFlash(ADDR_FLASH_PAGE_19, cpt, adr_stop );
 			  get_PRES();				//PRESSION			(mbar ou hPa)
 			  get_MAGN();				//CHAMP MAGNETIQUE	(mgauss)
 			  get_ADC();				//GAS				(ppm)
-		//	  GPS_GETPOS(GPS_COORD);	//POSITION GPS		(m)
+			  GPS_GETPOS(GPS_COORD);	//POSITION GPS		(m)
 
 
 
@@ -328,7 +303,7 @@ erreur_write=  WriteFlash(ADDR_FLASH_PAGE_19, cpt, adr_stop );
 			  cpt++;
 
   EraseFlash(ADDR_FLASH_PAGE_19,ADDR_FLASH_PAGE_19+31);
-WriteFlash(ADDR_FLASH_PAGE_19, cpt, ADDR_FLASH_PAGE_19+31);
+ WriteFlash(ADDR_FLASH_PAGE_19, cpt, ADDR_FLASH_PAGE_19+31);
 
 
 			 LORA_AT_SEND(CONV_CHAR32(GPS_COORD[0],buff_lon),CONV_CHAR32(GPS_COORD[1],buff_lat),CONV_CHAR32(GPS_COORD[2],buff_alt),CONV_CHAR(temp16[0],buff_temp), CONV_CHAR(hum16_x2[0],buff_hum),CONV_CHAR32(pres32[0]*10,buff_pres));
@@ -336,7 +311,7 @@ WriteFlash(ADDR_FLASH_PAGE_19, cpt, ADDR_FLASH_PAGE_19+31);
 
 
 
-						if((cpt)%1 == 0)
+						if((cpt)%5 == 0)
 			 			  	   {
 									erreur_data=ReadFlash(FLASH_USER_START_ADDR, DATA_32);
 			 			  		  	erreur = EraseFlash(FLASH_USER_START_ADDR,ADDR_FLASH_PAGE_255-1);
@@ -348,6 +323,10 @@ WriteFlash(ADDR_FLASH_PAGE_19, cpt, ADDR_FLASH_PAGE_19+31);
 			 			  		  	cpt_flash++;
 
 			 			  	   }
+			  GPS_COORD[0]=0;
+			  GPS_COORD[1]=1;
+			  GPS_COORD[2]=2;
+			  erreur_data=3;
 						 SD_SENSORS(GPS_COORD[0],GPS_COORD[1],GPS_COORD[2],erreur_data);
 
 
